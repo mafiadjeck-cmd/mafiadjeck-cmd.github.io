@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Практикум</title>
+</head>
+<body>
+<script>
+(async()=>{
+  try{
+    const parts=await Promise.all(Array.from({length:10},(_,i)=>fetch(`site-${i}.txt`,{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error(`site-${i}.txt: ${r.status}`); return r.text();}));
+    const b64=parts.join('').replace(/\s+/g,'');
+    const raw=atob(b64);
+    const bytes=new Uint8Array(raw.length);
+    for(let i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i);
+    if(typeof DecompressionStream==='undefined') throw new Error('Браузер не поддерживает DecompressionStream');
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const html=await new Response(stream).text();
+    document.open();
+    document.write(html);
+    document.close();
+  }catch(err){
+    document.body.innerHTML='<div style="font:16px Arial;padding:30px">Ошибка загрузки сайта. Обновите страницу.<br><small>'+String(err).replace(/[&<>]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]))+'</small></div>';
+    console.error(err);
+  }
+})();
+</script>
+</body>
+</html>
