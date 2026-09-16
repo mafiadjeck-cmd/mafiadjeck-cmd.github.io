@@ -20,7 +20,8 @@ redis.on('error', err => console.error('Redis error', err));
 let redisReady = false;
 async function ensureRedis(){
   if (!redisReady){
-    await redis.connect();
+    if (!redis.isOpen) await redis.connect();
+    await redis.ping();
     redisReady = true;
   }
 }
@@ -38,9 +39,10 @@ app.use((req,res,next)=>{
 });
 app.use(express.json({ limit: '15mb' }));
 
+app.get('/', (req,res)=>res.json({ok:true,service:'praktikum-cms'}));
 app.get('/health', async (req,res)=>{
-  try{ await ensureRedis(); await redis.ping(); res.json({ok:true}); }
-  catch(e){ res.status(500).json({ok:false,error:'storage_unavailable'}); }
+  try{ await ensureRedis(); res.json({ok:true}); }
+  catch(e){ console.error('Health storage error',e); res.status(500).json({ok:false,error:'storage_unavailable'}); }
 });
 
 async function fallbackHtml(){
@@ -94,4 +96,12 @@ app.post('/publish', async (req,res)=>{
   }
 });
 
-app.listen(port, '0.0.0.0', ()=>console.log(`Praktikum CMS API on ${port}`));
+(async()=>{
+  try{
+    await ensureRedis();
+    console.log('Praktikum CMS storage connected');
+  }catch(e){
+    console.error('Praktikum CMS storage connection failed', e);
+  }
+  app.listen(port, '0.0.0.0', ()=>console.log(`Praktikum CMS API on ${port}`));
+})();
