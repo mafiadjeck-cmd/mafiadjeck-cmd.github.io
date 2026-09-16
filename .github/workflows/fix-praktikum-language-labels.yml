@@ -1,0 +1,46 @@
+name: Fix Praktikum KG labels
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-praktikum-language-labels.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace visible KY labels with KG
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          base_path = Path('praktikum-demo/base.html')
+          base = base_path.read_text(encoding='utf-8')
+          pattern = r'(<button\b[^>]*\bdata-lang=(["\'])ky\2[^>]*>)\s*KY\s*(</button>)'
+          base2, n = re.subn(pattern, r'\1KG\3', base, flags=re.I)
+          if n != 1:
+              raise SystemExit(f'Expected exactly 1 public KY language button, found {n}')
+          base_path.write_text(base2, encoding='utf-8')
+
+          admin_path = Path('praktikum-demo/admin/index.html')
+          admin = admin_path.read_text(encoding='utf-8')
+          count = admin.count('KY')
+          if count < 1:
+              raise SystemExit('No KY labels found in admin')
+          admin = admin.replace('KY', 'KG')
+          admin_path.write_text(admin, encoding='utf-8')
+          print(f'Public switch updated: {n}; admin KY labels updated: {count}')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add praktikum-demo/base.html praktikum-demo/admin/index.html
+          git commit -m 'Use KG label for Kyrgyz language' || exit 0
+          git push
