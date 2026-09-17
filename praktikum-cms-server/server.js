@@ -83,7 +83,7 @@ function cleanToken(v,max=80){
   return String(v || '').trim().replace(/[^\p{L}\p{N}._:@+\-/ ]/gu,'').slice(0,max) || 'direct';
 }
 function dayKey(date = new Date()){
-  return date.toISOString().slice(0,10);
+  return new Date(date.getTime() + 6*60*60*1000).toISOString().slice(0,10);
 }
 function statsAuth(req,res){
   const id = clientId(req);
@@ -201,14 +201,24 @@ app.post('/event', async (req,res)=>{
     const multi = redis.multi()
       .hIncrBy('praktikum:analytics:totals', event, 1)
       .hIncrBy(`praktikum:analytics:day:${day}`, event, 1)
-      .hIncrBy('praktikum:analytics:sources', source, 1)
-      .hIncrBy('praktikum:analytics:devices', device, 1)
-      .hIncrBy('praktikum:analytics:langs', lang, 1)
       .pfAdd('praktikum:analytics:visitors', visitor)
       .pfAdd(`praktikum:analytics:visitors:${day}`, visitor)
       .expire(`praktikum:analytics:day:${day}`, 400*24*3600)
       .expire(`praktikum:analytics:visitors:${day}`, 400*24*3600);
-    if (campaign && campaign !== 'direct') multi.hIncrBy('praktikum:analytics:campaigns', campaign, 1);
+    if (event === 'page_view') {
+      multi
+        .hIncrBy(`praktikum:analytics:sources:${day}`, source, 1)
+        .hIncrBy(`praktikum:analytics:devices:${day}`, device, 1)
+        .hIncrBy(`praktikum:analytics:langs:${day}`, lang, 1)
+        .expire(`praktikum:analytics:sources:${day}`, 400*24*3600)
+        .expire(`praktikum:analytics:devices:${day}`, 400*24*3600)
+        .expire(`praktikum:analytics:langs:${day}`, 400*24*3600);
+      if (campaign && campaign !== 'direct') {
+        multi
+          .hIncrBy(`praktikum:analytics:campaigns:${day}`, campaign, 1)
+          .expire(`praktikum:analytics:campaigns:${day}`, 400*24*3600);
+      }
+    }
     await multi.exec();
     res.status(204).end();
   }catch(e){
@@ -224,26 +234,39 @@ app.get('/stats', async (req,res)=>{
     const days = Math.min(Math.max(parseInt(req.query.days || '30',10) || 30,7),90);
     const dates=[];
     for(let i=days-1;i>=0;i--){ const d=new Date(); d.setUTCDate(d.getUTCDate()-i); dates.push(dayKey(d)); }
-    const totals = await redis.hGetAll('praktikum:analytics:totals');
-    const uniqueVisitors = await redis.pfCount('praktikum:analytics:visitors');
-    const sourcesRaw = await redis.hGetAll('praktikum:analytics:sources');
-    const campaignsRaw = await redis.hGetAll('praktikum:analytics:campaigns');
-    const devicesRaw = await redis.hGetAll('praktikum:analytics:devices');
-    const langsRaw = await redis.hGetAll('praktikum:analytics:langs');
     const daily=[];
+    const totals={};
+    const sourcesRaw={};
+    const campaignsRaw={};
+    const devicesRaw={};
+    const langsRaw={};
+    const addMap = (target, obj) => { for (const [k,v] of Object.entries(obj||{})) target[k]=(target[k]||0)+Number(v||0); };
     for(const date of dates){
-      const [row,unique] = await Promise.all([
+      const [row,unique,sources,campaigns,devices,langs] = await Promise.all([
         redis.hGetAll(`praktikum:analytics:day:${date}`),
-        redis.pfCount(`praktikum:analytics:visitors:${date}`)
+        redis.pfCount(`praktikum:analytics:visitors:${date}`),
+        redis.hGetAll(`praktikum:analytics:sources:${date}`),
+        redis.hGetAll(`praktikum:analytics:campaigns:${date}`),
+        redis.hGetAll(`praktikum:analytics:devices:${date}`),
+        redis.hGetAll(`praktikum:analytics:langs:${date}`)
       ]);
+      addMap(totals,row); addMap(sourcesRaw,sources); addMap(campaignsRaw,campaigns); addMap(devicesRaw,devices); addMap(langsRaw,langs);
       daily.push({date,uniqueVisitors:Number(unique||0),...Object.fromEntries(Object.entries(row).map(([k,v])=>[k,Number(v)]))});
+    }
+    const visitorKeys = dates.map(date=>`praktikum:analytics:visitors:${date}`);
+    const tempVisitors = `praktikum:analytics:range:${Date.now()}:${Math.random().toString(36).slice(2)}`;
+    let uniqueVisitors = 0;
+    if (visitorKeys.length) {
+      await redis.sendCommand(['PFMERGE', tempVisitors, ...visitorKeys]);
+      uniqueVisitors = Number(await redis.sendCommand(['PFCOUNT', tempVisitors])) || 0;
+      await redis.del(tempVisitors);
     }
     const top = o => Object.entries(o||{}).map(([name,value])=>({name,value:Number(value)})).sort((a,b)=>b.value-a.value).slice(0,12);
     res.setHeader('Cache-Control','no-store');
     res.json({
       ok:true,
       rangeDays:days,
-      totals:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Number(v)])),
+      totals,
       uniqueVisitors:Number(uniqueVisitors||0),
       daily,
       sources:top(sourcesRaw),
