@@ -32,11 +32,15 @@ async function ensureRedis(){
 
 const failures = new Map();
 const publishes = new Map();
+const eventsByIp = new Map();
 const FAIL_WINDOW_MS = 15 * 60 * 1000;
 const BLOCK_MS = 30 * 60 * 1000;
 const MAX_FAILURES = 5;
 const PUBLISH_WINDOW_MS = 10 * 60 * 1000;
 const MAX_PUBLISHES = 20;
+const EVENT_WINDOW_MS = 60 * 1000;
+const MAX_EVENTS_PER_MINUTE = 120;
+const EVENT_NAMES = new Set(['page_view','whatsapp_click','phone_click','instagram_click','cta_click','lang_ru','lang_kg','trainer_action']);
 
 function clientId(req){ return req.ip || req.socket.remoteAddress || 'unknown'; }
 function safeEqual(a,b){
@@ -69,13 +73,61 @@ function allowPublish(id){
   if (list.length >= MAX_PUBLISHES) { publishes.set(id,list); return false; }
   list.push(now); publishes.set(id,list); return true;
 }
+function allowEvent(id){
+  const now = Date.now();
+  const list = (eventsByIp.get(id) || []).filter(t => now - t < EVENT_WINDOW_MS);
+  if (list.length >= MAX_EVENTS_PER_MINUTE) { eventsByIp.set(id,list); return false; }
+  list.push(now); eventsByIp.set(id,list); return true;
+}
+function cleanToken(v,max=80){
+  return String(v || '').trim().replace(/[^\p{L}\p{N}._:@+\-/ ]/gu,'').slice(0,max) || 'direct';
+}
+function dayKey(date = new Date()){
+  return date.toISOString().slice(0,10);
+}
+function statsAuth(req,res){
+  const id = clientId(req);
+  const wait = checkBlocked(id);
+  if (wait > 0) {
+    res.setHeader('Retry-After', String(Math.ceil(wait/1000)));
+    res.status(429).json({ok:false,error:'too_many_attempts'});
+    return false;
+  }
+  if (!safeEqual(req.get('X-Admin-Key'), adminKey)) {
+    const blocked = registerFailure(id);
+    if (blocked) res.setHeader('Retry-After', String(Math.ceil(BLOCK_MS/1000)));
+    res.status(blocked ? 429 : 401).json({ok:false,error:blocked ? 'too_many_attempts' : 'unauthorized'});
+    return false;
+  }
+  failures.delete(id);
+  return true;
+}
+function analyticsScript(){
+  return `<script id="praktikum-first-party-analytics">(function(){
+var API='https://praktikum-cms-api.onrender.com';
+function vid(){try{var k='praktikum-anon-visitor',v=localStorage.getItem(k);if(!v){v=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem(k,v)}return v}catch(e){return 'session-'+Math.random().toString(36).slice(2)}}
+function source(){try{var u=new URL(location.href),s=u.searchParams.get('utm_source');if(s)return s;var r=document.referrer;if(!r)return 'direct';return new URL(r).hostname.replace(/^www\\./,'')}catch(e){return 'direct'}}
+function campaign(){try{return new URL(location.href).searchParams.get('utm_campaign')||''}catch(e){return ''}}
+function device(){return innerWidth<768?'mobile':innerWidth<1100?'tablet':'desktop'}
+function lang(){return document.documentElement.getAttribute('lang-mode')==='ky'?'KG':'RU'}
+function send(event,extra){var body=JSON.stringify(Object.assign({event:event,vid:vid(),source:source(),campaign:campaign(),device:device(),lang:lang(),path:location.pathname},extra||{}));try{if(navigator.sendBeacon){var b=new Blob([body],{type:'application/json'});if(navigator.sendBeacon(API+'/event',b))return}}catch(e){}fetch(API+'/event',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){})}
+window.__praktikumTrack=send;
+send('page_view');
+document.addEventListener('click',function(e){var a=e.target.closest('a,button');if(!a)return;var href=(a.getAttribute('href')||'').toLowerCase();var dl=a.getAttribute('data-lang');if(dl==='ru')send('lang_ru');else if(dl==='ky')send('lang_kg');if(href.indexOf('wa.me/')>=0||href.indexOf('api.whatsapp.com')>=0)send('whatsapp_click');else if(href.indexOf('tel:')===0)send('phone_click');else if(href.indexOf('instagram.com')>=0)send('instagram_click');else if(a.matches('.btn,.btn-primary,.btn-ghost,[class*=cta]'))send('cta_click',{label:(a.textContent||'').trim().slice(0,60)});if(a.closest('[id*=trainer],[class*=trainer],[id*=practice],[class*=practice]'))send('trainer_action')},true);
+})();</script>`;
+}
 function normalizePublicHtml(html){
-  return String(html).replace(/(<button\b[^>]*\bdata-lang=(['\"])ky\2[^>]*>)\s*KY\s*(<\/button>)/gi,'$1KG$3');
+  let out = String(html).replace(/(<button\b[^>]*\bdata-lang=(['"])ky\2[^>]*>)\s*KY\s*(<\/button>)/gi,'$1KG$3');
+  if (!/id=["']praktikum-first-party-analytics["']/i.test(out)) {
+    const s = analyticsScript();
+    out = /<\/body>/i.test(out) ? out.replace(/<\/body>/i, s + '</body>') : out + s;
+  }
+  return out;
 }
 
 app.use((req,res,next)=>{
   res.setHeader('X-Content-Type-Options','nosniff');
-  res.setHeader('Referrer-Policy','no-referrer');
+  res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
   res.setHeader('X-Frame-Options','DENY');
   const origin = req.headers.origin;
@@ -94,7 +146,7 @@ app.use((req,res,next)=>{
   }
   next();
 });
-app.use(express.json({ limit: '15mb' }));
+app.use(express.json({ limit: '15mb', type:['application/json','text/plain','application/*+json'] }));
 
 app.get('/', (req,res)=>res.json({ok:true,service:'praktikum-cms'}));
 app.get('/health', async (req,res)=>{
@@ -132,20 +184,83 @@ app.get('/meta', async (req,res)=>{
   }catch(e){res.status(500).json({ok:false});}
 });
 
-app.post('/publish', async (req,res)=>{
+app.post('/event', async (req,res)=>{
   try{
     const id = clientId(req);
-    const wait = checkBlocked(id);
-    if (wait > 0) {
-      res.setHeader('Retry-After', String(Math.ceil(wait/1000)));
-      return res.status(429).json({ok:false,error:'too_many_attempts'});
+    if (!allowEvent(id)) return res.status(429).json({ok:false,error:'rate_limited'});
+    const b = req.body || {};
+    const event = String(b.event || '');
+    if (!EVENT_NAMES.has(event)) return res.status(400).json({ok:false,error:'invalid_event'});
+    const visitor = cleanToken(b.vid,120);
+    const source = cleanToken(b.source,80);
+    const campaign = cleanToken(b.campaign,100);
+    const device = ['mobile','tablet','desktop'].includes(b.device) ? b.device : 'other';
+    const lang = b.lang === 'KG' ? 'KG' : 'RU';
+    const day = dayKey();
+    await ensureRedis();
+    const multi = redis.multi()
+      .hIncrBy('praktikum:analytics:totals', event, 1)
+      .hIncrBy(`praktikum:analytics:day:${day}`, event, 1)
+      .hIncrBy('praktikum:analytics:sources', source, 1)
+      .hIncrBy('praktikum:analytics:devices', device, 1)
+      .hIncrBy('praktikum:analytics:langs', lang, 1)
+      .pfAdd('praktikum:analytics:visitors', visitor)
+      .pfAdd(`praktikum:analytics:visitors:${day}`, visitor)
+      .expire(`praktikum:analytics:day:${day}`, 400*24*3600)
+      .expire(`praktikum:analytics:visitors:${day}`, 400*24*3600);
+    if (campaign && campaign !== 'direct') multi.hIncrBy('praktikum:analytics:campaigns', campaign, 1);
+    await multi.exec();
+    res.status(204).end();
+  }catch(e){
+    console.error('Analytics event error',e);
+    res.status(500).json({ok:false,error:'analytics_failed'});
+  }
+});
+
+app.get('/stats', async (req,res)=>{
+  try{
+    if (!statsAuth(req,res)) return;
+    await ensureRedis();
+    const days = Math.min(Math.max(parseInt(req.query.days || '30',10) || 30,7),90);
+    const dates=[];
+    for(let i=days-1;i>=0;i--){ const d=new Date(); d.setUTCDate(d.getUTCDate()-i); dates.push(dayKey(d)); }
+    const totals = await redis.hGetAll('praktikum:analytics:totals');
+    const uniqueVisitors = await redis.pfCount('praktikum:analytics:visitors');
+    const sourcesRaw = await redis.hGetAll('praktikum:analytics:sources');
+    const campaignsRaw = await redis.hGetAll('praktikum:analytics:campaigns');
+    const devicesRaw = await redis.hGetAll('praktikum:analytics:devices');
+    const langsRaw = await redis.hGetAll('praktikum:analytics:langs');
+    const daily=[];
+    for(const date of dates){
+      const [row,unique] = await Promise.all([
+        redis.hGetAll(`praktikum:analytics:day:${date}`),
+        redis.pfCount(`praktikum:analytics:visitors:${date}`)
+      ]);
+      daily.push({date,uniqueVisitors:Number(unique||0),...Object.fromEntries(Object.entries(row).map(([k,v])=>[k,Number(v)]))});
     }
-    if (!safeEqual(req.get('X-Admin-Key'), adminKey)) {
-      const blocked = registerFailure(id);
-      if (blocked) res.setHeader('Retry-After', String(Math.ceil(BLOCK_MS/1000)));
-      return res.status(blocked ? 429 : 401).json({ok:false,error:blocked ? 'too_many_attempts' : 'unauthorized'});
-    }
-    failures.delete(id);
+    const top = o => Object.entries(o||{}).map(([name,value])=>({name,value:Number(value)})).sort((a,b)=>b.value-a.value).slice(0,12);
+    res.setHeader('Cache-Control','no-store');
+    res.json({
+      ok:true,
+      rangeDays:days,
+      totals:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Number(v)])),
+      uniqueVisitors:Number(uniqueVisitors||0),
+      daily,
+      sources:top(sourcesRaw),
+      campaigns:top(campaignsRaw),
+      devices:top(devicesRaw),
+      langs:top(langsRaw)
+    });
+  }catch(e){
+    console.error('Stats error',e);
+    res.status(500).json({ok:false,error:'stats_failed'});
+  }
+});
+
+app.post('/publish', async (req,res)=>{
+  try{
+    if (!statsAuth(req,res)) return;
+    const id = clientId(req);
     if (!allowPublish(id)) return res.status(429).json({ok:false,error:'publish_rate_limited'});
 
     let html = req.body && req.body.html;
