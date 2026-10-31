@@ -102,7 +102,14 @@ async function run(){
     !response.raw.includes('SYNTHETIC_DATA') && !response.raw.includes('praktikum:published:html') && !response.raw.includes('NEVER_INCLUDED_IN_EXPORT'));
   check('response disables caching',response.headers.get('cache-control')?.includes('no-store'));
   const snapshot=decryptBackup(encrypted,passphrase);
-  check('download verifier confirms encrypted app-only snapshot',inspect(snapshot).keys===snapshot.keys);
+  const inspection=inspect(snapshot);
+  check('download verifier confirms encrypted app-only snapshot',inspection.keys===snapshot.keys);
+  check('backup includes published site HTML and revision timestamp',
+    inspection.hasPublishedHtml===true && inspection.hasPublishedMetadata===true);
+  check('tampered completeness metadata rejected before saving',(()=>{
+    try {inspect({...snapshot,hasPublishedHtml:false});return false}
+    catch{return true}
+  })());
   check('read-only snapshot covers 1200 extra synthetic keys across SCAN pages',snapshot.keys>=1206&&snapshot.records.some(r=>r.key==='praktikum:published:html')&&snapshot.records.some(r=>r.type==='hash'));
   check('namespace filter excludes unrelated keys',snapshot.records.every(r=>r.key.startsWith('praktikum:'))&&!snapshot.records.some(r=>r.key==='not-praktikum:secret'));
   check('snapshot is explicitly labeled non-atomic',snapshot.atomic===false);
