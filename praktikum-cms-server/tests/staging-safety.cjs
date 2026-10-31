@@ -31,6 +31,15 @@ assert.ok(!encodedJson.includes('</script>'), 'Stored JSON must not close its ow
 assert.deepEqual(JSON.parse(encodedJson), jsonPayload, 'Stored JSON must retain its original values');
 assert.ok(admin.includes("sd.textContent=JSON.stringify(data).replace(/</g,'\\\\u003c')"),
   'Admin publishing must encode HTML tag openers inside inline JSON');
+const helpersSource = admin.slice(admin.indexOf('function replaceAllSafe'),admin.indexOf('let activeAdminKey'));
+assert.ok(helpersSource.startsWith('function replaceAllSafe'), 'Contact-validation helpers missing');
+const htmlEscape = value => String(value).replace(/[&<>"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]));
+const helpers = new Function('esc','URL',helpersSource+';return {replaceAllSafe,validateContactSettings}')(htmlEscape, URL);
+assert.equal(helpers.replaceAllSafe('<a href="old">','old','" onclick="alert(1)'),'<'+'a href="&quot; onclick=&quot;alert(1)">');
+helpers.validateContactSettings({whatsapp:'996220622221',phone:'+996 220 622 221',instagram:'https://www.instagram.com/test',threads:'https://www.threads.net/@test'});
+assert.throws(() => helpers.validateContactSettings({instagram:'javascript:alert(1)'}), /Проверьте ссылку|Недопустимая ссылка/);
+assert.throws(() => helpers.validateContactSettings({threads:'https://www.threads.net.evil.test'}), /Недопустимая ссылка/);
+assert.ok(admin.includes('siteDataMarker'), 'CMS inline JSON must be excluded from raw HTML contact substitution');
 assert.match(home, /fetch\('https:\/\/praktikum-cms-api\.onrender\.com\/site/);
 assert.match(base, /id="site-data"/);
 console.log('Praktikum staging safety checks: PASS (code only, not live API).');
