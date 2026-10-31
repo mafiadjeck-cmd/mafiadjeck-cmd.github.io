@@ -109,4 +109,4 @@ async function main(){
   console.log('This is NOT proof of a complete real database backup until isolated restoration is tested.');
 }
 if(require.main===module)main().catch(e=>{console.error('EXPORT FAILED: '+e.message);process.exitCode=1});
-module.exports={inspect};
+module.exports={inspect,hiddenQuestion};
