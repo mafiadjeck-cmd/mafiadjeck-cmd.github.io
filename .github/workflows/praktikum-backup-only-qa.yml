@@ -1,0 +1,66 @@
+name: Praktikum minimal backup-only branch QA
+on:
+  push:
+    branches:
+      - safety/praktikum-backup-only-2026-10-31
+    paths:
+      - 'praktikum-cms-server/backup/**'
+      - 'praktikum-cms-server/server.js'
+      - 'praktikum-cms-server/tests/integration-backup.cjs'
+      - 'praktikum-cms-server/tests/backup-edge.cjs'
+      - '.github/workflows/praktikum-backup-only-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: redis-7.4
+            image: redis:7.4-alpine
+            health_cli: redis-cli
+          - engine: valkey-8.1.10
+            image: valkey/valkey:8.1.10-alpine
+            health_cli: valkey-cli
+    services:
+      disposable_redis:
+        image: ${{ matrix.image }}
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "${{ matrix.health_cli }} ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      GITHUB_ACTIONS: 'true'
+      INTEGRATION_REDIS_BASE: redis://127.0.0.1:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install staged server dependencies (disposable test runner only)
+        run: cd praktikum-cms-server && npm install --ignore-scripts --no-audit --no-fund
+      - name: Syntax checks
+        run: |
+          node --check praktikum-cms-server/server.js
+          node --check praktikum-cms-server/backup/backup-export.cjs
+          node --check praktikum-cms-server/backup/download-encrypted.cjs
+          node --check praktikum-cms-server/backup/restore-isolated.cjs
+          node --check praktikum-cms-server/tests/integration-backup.cjs
+          node --check praktikum-cms-server/tests/backup-edge.cjs
+      - name: Validate backup safety failure cases
+        run: cd praktikum-cms-server && node tests/backup-edge.cjs
+      - name: Encrypted backup and independent restore against disposable local database
+        run: cd praktikum-cms-server && node tests/integration-backup.cjs | tee encrypted-backup-test.log
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: praktikum-encrypted-backup-qa-${{ matrix.engine }}
+          path: praktikum-cms-server/encrypted-backup-test.log
+          retention-days: 7
