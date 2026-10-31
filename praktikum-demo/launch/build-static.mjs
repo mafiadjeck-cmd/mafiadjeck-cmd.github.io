@@ -27,6 +27,13 @@ function makeLocalizedHtml(source,config,origin,lang){
   const meta=config.seo[lang];
   let html=source;
   if(!/<!doctype html>/i.test(html)||!/id=["']site-data["']/.test(html))fail('Not a verified Praktikum HTML document');
+  // The saved GET /site response may contain live analytics hard-coded to old Render.
+  // The new domain has not been allowlisted or consent-reviewed. Do not transmit events.
+  const oldAnalytics=/<script\b[^>]*\bid=(["'])praktikum-first-party-analytics\1[^>]*>[\s\S]*?<\/script>/gi;
+  const matches=html.match(oldAnalytics)||[];
+  if(matches.length>1)fail('Multiple analytics scripts in source');
+  if(matches.length===1)html=html.replace(oldAnalytics,'');
+
   // This release builder works with the current public Praktikum HTML structure.
   html=setExactlyOnce(html,'<html lang="ru" lang-mode="ru">',`<html lang="${lang}" lang-mode="${lang}" data-seo-locale="${lang}">`,'html opening');
   const titleMatch=html.match(/<title>[^<]*<\/title>/i);
