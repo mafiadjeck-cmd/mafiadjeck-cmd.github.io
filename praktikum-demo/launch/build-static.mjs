@@ -28,7 +28,7 @@ function makeLocalizedHtml(source,config,origin,lang){
   let html=source;
   if(!/<!doctype html>/i.test(html)||!/id=["']site-data["']/.test(html))fail('Not a verified Praktikum HTML document');
   // This release builder works with the current public Praktikum HTML structure.
-  html=setExactlyOnce(html,'<html lang="ru" lang-mode="ru">',\`<html lang="\${lang}" lang-mode="\${lang}" data-seo-locale="\${lang}">\`,'html opening');
+  html=setExactlyOnce(html,'<html lang="ru" lang-mode="ru">',`<html lang="${lang}" lang-mode="${lang}" data-seo-locale="${lang}">`,'html opening');
   const titleMatch=html.match(/<title>[^<]*<\/title>/i);
   if(!titleMatch)fail('Missing title element');
   html=setExactlyOnce(html,titleMatch[0],'<title>'+esc(meta.title)+'</title>','title');
