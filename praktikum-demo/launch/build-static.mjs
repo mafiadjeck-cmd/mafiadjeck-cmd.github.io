@@ -63,6 +63,10 @@ function makeLocalizedHtml(source,config,origin,lang,mode){
     '<meta property="og:url" content="'+esc(canonical)+'">',
     '<meta name="twitter:card" content="summary">',
   ];
+  // Some source styles shift the closed fixed menu to x=100vw,
+  // doubling document.scrollWidth. Keep it at x=0 while invisible;
+  // the existing .nav-open rule still makes it visible and interactive.
+  tags.push('<style id="praktikum-nav-overflow-fix">@media(max-width:1400px){header:not(.nav-open) .nav-list{transform:none!important}}</style>');
   if(mode==='preview')tags.push('<meta name="robots" content="noindex,nofollow,noarchive">');
   if(config.ogImage && mode==='release'){
     const og=new URL(config.ogImage,ru);
