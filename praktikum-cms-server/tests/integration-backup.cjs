@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const {spawn}=require('node:child_process');
 const {createClient}=require('redis');
 const {decryptBackup}=require('../backup/backup-export.cjs');
+const {inspect}=require('../backup/download-encrypted.cjs');
 assert.equal(process.env.GITHUB_ACTIONS,'true','Refusing to run outside isolated GitHub Actions');
 assert.equal(process.env.INTEGRATION_REDIS_BASE,'redis://127.0.0.1:6379','Refusing external Redis');
 const redisBase='redis://127.0.0.1:6379',url='http://127.0.0.1:19194';
@@ -101,6 +102,7 @@ async function run(){
     !response.raw.includes('SYNTHETIC_DATA') && !response.raw.includes('praktikum:published:html') && !response.raw.includes('NEVER_INCLUDED_IN_EXPORT'));
   check('response disables caching',response.headers.get('cache-control')?.includes('no-store'));
   const snapshot=decryptBackup(encrypted,passphrase);
+  check('download verifier confirms encrypted app-only snapshot',inspect(snapshot).keys===snapshot.keys);
   check('read-only snapshot covers 1200 extra synthetic keys across SCAN pages',snapshot.keys>=1206&&snapshot.records.some(r=>r.key==='praktikum:published:html')&&snapshot.records.some(r=>r.type==='hash'));
   check('namespace filter excludes unrelated keys',snapshot.records.every(r=>r.key.startsWith('praktikum:'))&&!snapshot.records.some(r=>r.key==='not-praktikum:secret'));
   check('snapshot is explicitly labeled non-atomic',snapshot.atomic===false);
