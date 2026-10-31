@@ -53,7 +53,7 @@ jobs:
           for page in [ru,ky]:
               assert 'name="robots" content="noindex,nofollow,noarchive"' in page
               assert 'НЕ ОПУБЛИКОВАНО' in page
-              assert 'location.protocol==\'file:\'' in page
+              assert 'location.protocol===\'file:\'' in page
               assert 'praktikum-first-party-analytics' not in page
               assert 'mailto:' not in page
               assert 'id="site-data"' in page
