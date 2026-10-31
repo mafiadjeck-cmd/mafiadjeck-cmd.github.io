@@ -1,0 +1,63 @@
+name: Praktikum staging real browser QA
+on:
+  push:
+    branches:
+      - staging/praktikum-safe-2026-10-30
+    paths:
+      - 'praktikum-demo/launch/build-static.mjs'
+      - 'praktikum-demo/launch/test-browser.cjs'
+      - '.github/workflows/praktikum-browser-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium test dependency in staging runner only
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cd praktikum-demo/launch
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Capture current public page READ ONLY with repository fallback
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p qa
+          if curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --max-time 90 --retry 2 --retry-delay 5 --retry-all-errors \
+            'https://praktikum-cms-api.onrender.com/site' -o qa/source.html &&
+            test "$(wc -c < qa/source.html)" -gt 1000 &&
+            grep -q 'id="site-data"' qa/source.html; then
+            echo 'live-public-api' > qa/SOURCE_STATUS.txt
+          else
+            cp praktikum-demo/base.html qa/source.html
+            echo 'repository-fallback' > qa/SOURCE_STATUS.txt
+          fi
+          cat qa/SOURCE_STATUS.txt
+          node praktikum-demo/launch/build-static.mjs \
+            --mode preview \
+            --source qa/source.html \
+            --config praktikum-demo/launch/seo-email.config.example.json \
+            --site-url https://preview.invalid/ \
+            --out qa/site
+      - name: Test Chromium desktop and mobile clicks (blocked external requests)
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node praktikum-demo/launch/test-browser.cjs qa/site | tee qa/browser-test.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: praktikum-staging-browser-qa
+          path: |
+            qa/SOURCE_STATUS.txt
+            qa/browser-test.log
+          if-no-files-found: warn
+          retention-days: 7
