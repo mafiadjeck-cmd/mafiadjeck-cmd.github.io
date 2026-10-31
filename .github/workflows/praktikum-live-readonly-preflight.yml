@@ -1,0 +1,43 @@
+name: Praktikum live read-only preflight before backup patch
+on:
+  push:
+    branches:
+      - safety/praktikum-backup-only-2026-10-31
+    paths:
+      - '.github/workflows/praktikum-live-readonly-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only real API health, metadata and site checks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          base='https://praktikum-cms-api.onrender.com'
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 2 --retry-all-errors --retry-delay 5 --max-time 90 "$base/health" -o "$tmp/health.json"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 2 --retry-all-errors --retry-delay 5 --max-time 90 "$base/meta" -o "$tmp/meta.json"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 2 --retry-all-errors --retry-delay 5 --max-time 90 "$base/site" -o "$tmp/site.html"
+          python3 - "$tmp" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          health=json.loads((root/'health.json').read_bytes())
+          meta=json.loads((root/'meta.json').read_bytes())
+          html=(root/'site.html').read_bytes()
+          assert health.get('ok') is True, 'Health endpoint not OK'
+          assert meta.get('ok') is True, 'Metadata endpoint not OK'
+          assert b'id="site-data"' in html and b'<html' in html.lower(), 'Published HTML content incomplete'
+          assert len(html)>200000, 'Published HTML unexpectedly small; not safe to deploy'
+          print('PREFLIGHT_PASS live GET /health and /meta and /site')
+          print('html_bytes',len(html))
+          print('html_sha256',hashlib.sha256(html).hexdigest())
+          print('published_at',meta.get('updatedAt'))
+          print('stored_page_signal',health.get('publishedStored','not-exposed-by-current-production'))
+          PY
