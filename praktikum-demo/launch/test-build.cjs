@@ -12,10 +12,10 @@ const source=path.join(here,'..','base.html');
 const example=JSON.parse(fs.readFileSync(path.join(here,'seo-email.config.example.json'),'utf8'));
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'praktikum-seo-test-'));
 let checks=0;
-function run(config,url,out){
+function run(config,url,out,inputSource=source){
   const cfg=path.join(temp,'config-'+(++checks)+'.json');
   fs.writeFileSync(cfg,JSON.stringify(config));
-  const args=[builder,'--source',source,'--config',cfg,'--site-url',url,'--out',out];
+  const args=[builder,'--source',inputSource,'--config',cfg,'--site-url',url,'--out',out];
   const result=cp.spawnSync(process.execPath,args,{encoding:'utf8',timeout:15000});
   if(result.error)throw result.error;
   return result;
@@ -52,6 +52,14 @@ try{
   assert.notEqual(r.status,0,'Plain HTTP release must be rejected');
   r=run(cfg,'https://praktikum.example/admin/',path.join(temp,'bad-path'));
   assert.notEqual(r.status,0,'Non-root URL must be rejected');
+  const withOldTracking=path.join(temp,'mock-live-source.html');
+  fs.writeFileSync(withOldTracking,fs.readFileSync(source,'utf8').replace('</body>',
+    '<script id="praktikum-first-party-analytics">globalThis.__shouldNeverTrack=true</script></body>'));
+  r=run(cfg,'https://praktikum.example/',path.join(temp,'safe-no-analytics'),withOldTracking);
+  assert.equal(r.status,0,r.stderr);
+  const clean=fs.readFileSync(path.join(temp,'safe-no-analytics','index.html'),'utf8');
+  assert.ok(!clean.includes('praktikum-first-party-analytics'),'Old analytics must not leak into new domain');
+  assert.ok(!clean.includes('__shouldNeverTrack'),'Old analytics code must be removed');
   console.log('PASS: SEO and optional future email staging tests. No network or production activity.');
 }finally{
   fs.rmSync(temp,{recursive:true,force:true});
