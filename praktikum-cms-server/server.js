@@ -1,6 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const { createClient } = require('redis');
+const { exportEncryptedReadonly } = require('./backup/backup-export.cjs');
 
 const app = express();
 app.disable('x-powered-by');
@@ -9,6 +10,8 @@ app.set('trust proxy', 1);
 const port = process.env.PORT || 10000;
 const redisUrl = process.env.REDIS_URL;
 const adminKey = process.env.ADMIN_KEY;
+const backupExportEnabled = process.env.ENABLE_BACKUP_EXPORT === 'true';
+const backupKey = process.env.BACKUP_EXPORT_KEY || '';
 const baseUrl = process.env.BASE_HTML_URL || 'https://raw.githubusercontent.com/mafiadjeck-cmd/mafiadjeck-cmd.github.io/main/praktikum-demo/base.html';
 const allowedOrigins = new Set([
   'https://mafiadjeck-cmd.github.io',
@@ -30,6 +33,7 @@ if (process.env.PUBLIC_SITE_ORIGIN) {
 
 if (!redisUrl) throw new Error('REDIS_URL is required');
 if (!adminKey) throw new Error('ADMIN_KEY is required');
+if(backupExportEnabled && (backupKey.length<32 || safeEqual(backupKey,adminKey))) throw new Error('Dedicated BACKUP_EXPORT_KEY of at least 32 characters is required for export');
 
 const redis = createClient({ url: redisUrl });
 redis.on('error', err => console.error('Redis error', err));
@@ -296,6 +300,43 @@ app.get('/stats', async (req,res)=>{
     console.error('Stats error',e);
     res.status(500).json({ok:false,error:'stats_failed'});
   }
+});
+
+let backupExportInProgress=false;
+// Disabled by default. This route is *read-only* for Redis and must NEVER be
+// activated in production without independent approval and a rollback plan.
+// Requires both admin and independent backup keys; archive encrypted before sending.
+let lastBackupExportAt=0;
+app.post('/backup/export', async (req,res)=>{
+  if(!backupExportEnabled) return res.status(404).json({ok:false,error:'not_found'});
+  if(!statsAuth(req,res))return;
+  if(!safeEqual(req.get('X-Backup-Key'),backupKey)){
+    const blocked=registerFailure(clientId(req));
+    if(blocked)res.setHeader('Retry-After',String(Math.ceil(BLOCK_MS/1000)));
+    return res.status(blocked?429:401).json({ok:false,error:'unauthorized'});
+  }
+  const phrase=req.body?.passphrase;
+  if(typeof phrase!=='string'||phrase.length<20||phrase.length>512)
+    return res.status(400).json({ok:false,error:'passphrase_must_have_20_to_512_characters'});
+  const now=Date.now();
+  if(now-lastBackupExportAt<120000)
+    return res.status(429).json({ok:false,error:'export_cooldown'});
+  // Single process guard, plus a delay between downloads.
+  if(backupExportInProgress)
+    return res.status(429).json({ok:false,error:'export_in_progress'});
+  backupExportInProgress=true;
+  try{
+    await ensureRedis();
+    const data=await exportEncryptedReadonly(redis,phrase);
+    lastBackupExportAt=Date.now();
+    res.setHeader('Cache-Control','private, no-store, max-age=0');
+    res.setHeader('Pragma','no-cache');
+    res.setHeader('Content-Disposition','attachment; filename="praktikum-encrypted-backup.json"');
+    return res.status(200).type('application/json').send(JSON.stringify(data));
+  }catch(e){
+    console.error('Encrypted backup export failed:',e.message);
+    return res.status(500).json({ok:false,error:'backup_export_failed'});
+  }finally{backupExportInProgress=false}
 });
 
 app.post('/publish', async (req,res)=>{
