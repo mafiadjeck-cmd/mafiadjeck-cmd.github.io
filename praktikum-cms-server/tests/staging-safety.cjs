@@ -42,4 +42,50 @@ assert.throws(() => helpers.validateContactSettings({threads:'https://www.thread
 assert.ok(admin.includes('siteDataMarker'), 'CMS inline JSON must be excluded from raw HTML contact substitution');
 assert.match(home, /fetch\('https:\/\/praktikum-cms-api\.onrender\.com\/site/);
 assert.match(base, /id="site-data"/);
-console.log('Praktikum staging safety checks: PASS (code only, not live API).');
+
+const loaderMatch = home.match(/<script>([\s\S]*?)<\/script>/i);
+assert.ok(loaderMatch, 'Public entrypoint must include loader script');
+const loadPage = new Function('fetch','document','AbortController','setTimeout','clearTimeout','Date','console','return '+loaderMatch[1].trim());
+async function checkLoader(mode){
+  let usedFallback=false, aborted=false, cleared=false, waitMs=0, written='';
+  const documentStub={open(){},write(s){written=s},close(){},body:{innerHTML:''}};
+  class AbortStub {
+    constructor(){this.signal={onabort:null,aborted:false}}
+    abort(){aborted=true;this.signal.aborted=true;if(this.signal.onabort)this.signal.onabort()}
+  }
+  const schedule=(callback,ms)=>{
+    waitMs=ms;
+    if(mode==='timeout') Promise.resolve().then(callback);
+    return 123;
+  };
+  const fetchStub=(url,opts)=>{
+    if(url.includes('onrender.com')){
+      if(mode==='error')return Promise.resolve({ok:false,status:503});
+      if(mode==='timeout')return new Promise((resolve,reject)=>{opts.signal.onabort=()=>reject(new Error('aborted'))});
+      return Promise.resolve({ok:true,text:async()=>'<html>CMS VERSION</html>'});
+    }
+    if(url.startsWith('base.html')){
+      usedFallback=true;
+      return Promise.resolve({ok:true,text:async()=>'<html>FALLBACK VERSION</html>'});
+    }
+    throw Error('Unexpected URL '+url);
+  };
+  await loadPage(fetchStub,documentStub,AbortStub,schedule,()=>{cleared=true},Date,{error(){}});
+  assert.equal(waitMs,4000,'CMS wait must be bounded to four seconds');
+  assert.ok(cleared,'Timer must be cleared');
+  if(mode==='ok'){
+    assert.ok(written.includes('CMS VERSION'),'Live CMS response should be displayed');
+    assert.ok(!usedFallback,'Fallback should not be requested after CMS success');
+  }else{
+    assert.ok(written.includes('FALLBACK VERSION'),'Fallback HTML must be displayed');
+    assert.ok(usedFallback,'Fallback file should be fetched');
+    if(mode==='timeout')assert.ok(aborted,'CMS request should be cancelled on timeout');
+  }
+}
+(async()=>{
+  await checkLoader('ok');
+  await checkLoader('error');
+  await checkLoader('timeout');
+  console.log('Praktikum staging safety checks: PASS (offline; 3 entrypoint scenarios; not live API).');
+})().catch(e=>{console.error(e);process.exitCode=1});
+
