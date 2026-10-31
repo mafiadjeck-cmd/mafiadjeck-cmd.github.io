@@ -13,14 +13,24 @@ permissions:
 jobs:
   integration:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: redis-7.4
+            image: redis:7.4-alpine
+            health_cli: redis-cli
+          - engine: valkey-8.1.10
+            image: valkey/valkey:8.1.10-alpine
+            health_cli: valkey-cli
     timeout-minutes: 8
     services:
       disposable_redis:
-        image: redis:7.4-alpine
+        image: ${{ matrix.image }}
         ports:
           - 6379:6379
         options: >-
-          --health-cmd "redis-cli ping"
+          --health-cmd "${{ matrix.health_cli }} ping"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 12
@@ -47,7 +57,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: praktikum-isolated-restore-test-results
+          name: praktikum-isolated-restore-${{ matrix.engine }}
           path: praktikum-cms-server/isolated-integration-result.log
           if-no-files-found: error
           retention-days: 7
