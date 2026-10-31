@@ -52,12 +52,30 @@ jobs:
         run: |
           set -Eeuo pipefail
           node praktikum-demo/launch/test-browser.cjs qa/site | tee qa/browser-test.log
+      - name: Assemble verified offline review archive with checksums
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cat > qa/README_RU.txt <<'EOF'
+          ПРАКТИКУМ — ПРОВЕРЕННЫЙ SEO-ПРЕДПРОСМОТР
+          Только для личного просмотра, НЕ для публикации.
+          Открыть site/index.html; кыргызская версия: site/ky/index.html.
+          SOURCE_STATUS.txt показывает источник HTML: live-public-api или repository-fallback.
+          Браузерные проверки desktop/mobile должны иметь статус PASS в browser-test.log.
+          Нет рабочей почты; нет старой аналитики; страницы закрыты от индексации.
+          Для проверки SHA-256 запустите sha256sum -c SHA256SUMS.txt из папки архива.
+          Настоящий Render, CMS, Redis, main и DNS не изменены.
+          EOF
+          (cd qa && find site -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: success()
         with:
-          name: praktikum-staging-browser-qa
+          name: praktikum-verified-browser-preview
           path: |
+            qa/site/
             qa/SOURCE_STATUS.txt
             qa/browser-test.log
-          if-no-files-found: warn
-          retention-days: 7
+            qa/SHA256SUMS.txt
+            qa/README_RU.txt
+          if-no-files-found: error
+          retention-days: 14
