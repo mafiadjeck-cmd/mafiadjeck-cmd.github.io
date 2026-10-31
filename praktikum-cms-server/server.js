@@ -15,6 +15,18 @@ const allowedOrigins = new Set([
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ]);
+/* Future custom-domain support. Empty unless the domain is verified.
+ * Never set to '*'; do not change deployment config until release tests pass.
+ */
+if (process.env.PUBLIC_SITE_ORIGIN) {
+  const siteOrigin = new URL(process.env.PUBLIC_SITE_ORIGIN);
+  if (siteOrigin.protocol !== 'https:' || !siteOrigin.hostname.includes('.') ||
+      siteOrigin.username || siteOrigin.password || siteOrigin.pathname !== '/' ||
+      siteOrigin.search || siteOrigin.hash) {
+    throw new Error('PUBLIC_SITE_ORIGIN must be the verified HTTPS origin with trailing slash');
+  }
+  allowedOrigins.add(siteOrigin.origin);
+}
 
 if (!redisUrl) throw new Error('REDIS_URL is required');
 if (!adminKey) throw new Error('ADMIN_KEY is required');
