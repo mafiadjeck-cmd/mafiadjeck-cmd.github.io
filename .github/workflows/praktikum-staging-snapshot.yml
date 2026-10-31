@@ -18,21 +18,30 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          mkdir -p snapshot/fallback snapshot/source snapshot/status
+          mkdir -p snapshot/fallback snapshot/staging snapshot/production snapshot/status
           cp praktikum-demo/base.html snapshot/fallback/base.html
-          cp praktikum-demo/index.html snapshot/source/index.html
-          cp praktikum-demo/admin/index.html snapshot/source/admin.html
-          cp praktikum-cms-server/server.js snapshot/source/server.js
-          cp praktikum-cms-server/package.json snapshot/source/package.json
+          cp praktikum-demo/index.html snapshot/staging/index.html
+          cp praktikum-demo/admin/index.html snapshot/staging/admin.html
+          cp praktikum-cms-server/server.js snapshot/staging/server.js
+          cp praktikum-cms-server/package.json snapshot/staging/package.json
           git rev-parse HEAD > snapshot/status/staging_commit.txt
+          git fetch --no-tags --depth=1 origin main
+          git rev-parse FETCH_HEAD > snapshot/status/production_commit.txt
+          git show FETCH_HEAD:praktikum-demo/index.html > snapshot/production/index.html
+          git show FETCH_HEAD:praktikum-demo/admin/index.html > snapshot/production/admin.html
+          git show FETCH_HEAD:praktikum-cms-server/server.js > snapshot/production/server.js
+          git show FETCH_HEAD:praktikum-cms-server/package.json > snapshot/production/package.json
           cat > snapshot/README.txt <<'TXT'
           PRAKTIKUM — EMERGENCY READ-ONLY SNAPSHOT
           This is a GitHub Actions artifact from a staging branch.
-          fallback/base.html is from the GitHub repository, NOT a verified latest Redis version.
+          fallback/base.html is from staging GitHub (same static public fallback as main, not Redis).
+          production/ contains code from GitHub main, the deployed source as of workflow time.
+          staging/ contains UNDEPLOYED candidate changes and must not be treated as production code.
           If live/current-site.html exists, GET /site succeeded and returned a plausible site HTML.
           If not, read status/live-fetch.txt for the error.
           This snapshot does NOT contain raw Redis keys, historical analytics, or server secrets.
           The live Render service, Redis, production branch and CMS were NOT modified.
+          SHA256SUMS.txt covers every other file, excluding itself.
           Save this artifact privately; it expires from GitHub Actions according to retention.
           TXT
       - name: Try current public CMS page (GET only, never POST)
@@ -58,12 +67,12 @@ jobs:
           else
             rm -f snapshot/live/meta.json
           fi
-          find snapshot -type f -print0 | sort -z | xargs -0 sha256sum > snapshot/status/SHA256SUMS.txt
+          find snapshot -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > snapshot/status/SHA256SUMS.txt
           cat snapshot/status/live-fetch.txt
       - name: Upload snapshot artifact
         uses: actions/upload-artifact@v4
         with:
-          name: praktikum-readonly-snapshot
+          name: praktikum-readonly-snapshot-verified
           path: snapshot/
           if-no-files-found: error
           retention-days: 7
