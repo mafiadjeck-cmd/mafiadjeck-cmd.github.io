@@ -1,0 +1,31 @@
+name: Praktikum staging SEO and future email offline checks
+on:
+  push:
+    branches:
+      - staging/praktikum-safe-2026-10-30
+    paths:
+      - 'praktikum-demo/launch/**'
+      - 'praktikum-demo/admin/index.html'
+      - 'praktikum-demo/base.html'
+      - 'praktikum-cms-server/tests/**'
+      - '.github/workflows/praktikum-seo-prep-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static syntax checks
+        run: |
+          node --check praktikum-demo/launch/build-static.mjs
+          node --check praktikum-demo/launch/test-build.cjs
+      - name: Offline SEO and email tests
+        run: node praktikum-demo/launch/test-build.cjs
+      - name: Existing offline CMS safety tests
+        run: cd praktikum-cms-server && npm test
