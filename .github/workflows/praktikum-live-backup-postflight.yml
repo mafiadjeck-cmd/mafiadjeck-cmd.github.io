@@ -1,0 +1,50 @@
+name: Praktikum live backup patch postflight
+on:
+  push:
+    branches:
+      - safety/praktikum-backup-only-2026-10-31
+    paths:
+      - '.github/workflows/praktikum-live-backup-postflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Verify live site snapshot, metadata, health and disabled export
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          api='https://praktikum-cms-api.onrender.com'
+          for endpoint in health meta site; do
+            curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --max-time 90 --retry 2 --retry-all-errors --retry-delay 4 "$api/$endpoint" -o "$tmp/$endpoint"
+          done
+          export_http="$(curl --proto '=https' --tlsv1.2 --silent --show-error --max-time 45 --retry 1 --retry-delay 3 -X POST -H 'Content-Type: application/json' -d '{}' -o "$tmp/export.json" -w '%{http_code}' "$api/backup/export")"
+          echo "EXPORT_HTTP_STATUS=$export_http"
+          if test "$export_http" != '404'; then
+            echo 'FAILED: protected backup export must be disabled'
+            exit 1
+          fi
+          python3 - "$tmp" <<'PY'
+          from pathlib import Path
+          import hashlib, json, sys
+          root=Path(sys.argv[1])
+          health=json.loads((root/'health').read_text())
+          meta=json.loads((root/'meta').read_text())
+          html=(root/'site').read_bytes()
+          assert health.get('ok') is True
+          assert meta.get('ok') is True
+          expected_sha='95d3347adcd266a87f9e4ef2f7923acd9d42f6dfca38d3a990af9c50f63e59fa'
+          digest=hashlib.sha256(html).hexdigest()
+          assert digest==expected_sha, 'LIVE SITE CHANGED: '+digest
+          assert len(html)==331678
+          assert meta.get('updatedAt')=='2026-09-16T16:32:17.217Z'
+          print('PASS: live page and publication metadata exactly match backup snapshot')
+          print('site_html_sha256='+digest)
+          print('page_bytes='+str(len(html)))
+          print('PASS: export route rejects uncredentialed request with 404')
+          PY
