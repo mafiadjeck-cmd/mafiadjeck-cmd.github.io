@@ -51,6 +51,7 @@ jobs:
           node --check praktikum-cms-server/server.js
           node --check praktikum-cms-server/backup/backup-export.cjs
           node --check praktikum-cms-server/backup/download-encrypted.cjs
+          node --check praktikum-cms-server/backup/restore-isolated.cjs
           node --check praktikum-cms-server/tests/integration-backup.cjs
           node --check praktikum-cms-server/tests/backup-edge.cjs
       - name: Validate backup safety failure cases
