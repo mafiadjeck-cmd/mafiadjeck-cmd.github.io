@@ -12,10 +12,10 @@ const source=path.join(here,'..','base.html');
 const example=JSON.parse(fs.readFileSync(path.join(here,'seo-email.config.example.json'),'utf8'));
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'praktikum-seo-test-'));
 let checks=0;
-function run(config,url,out,inputSource=source){
+function run(config,url,out,inputSource=source,mode='release'){
   const cfg=path.join(temp,'config-'+(++checks)+'.json');
   fs.writeFileSync(cfg,JSON.stringify(config));
-  const args=[builder,'--source',inputSource,'--config',cfg,'--site-url',url,'--out',out];
+  const args=[builder,'--source',inputSource,'--config',cfg,'--site-url',url,'--out',out,'--mode',mode];
   const result=cp.spawnSync(process.execPath,args,{encoding:'utf8',timeout:15000});
   if(result.error)throw result.error;
   return result;
@@ -60,6 +60,23 @@ try{
   const clean=fs.readFileSync(path.join(temp,'safe-no-analytics','index.html'),'utf8');
   assert.ok(!clean.includes('praktikum-first-party-analytics'),'Old analytics must not leak into new domain');
   assert.ok(!clean.includes('__shouldNeverTrack'),'Old analytics code must be removed');
+  const previewOut=path.join(temp,'preview');
+  r=run(example,'https://preview.invalid/',previewOut,source,'preview');
+  assert.equal(r.status,0,r.stderr);
+  const previewRu=fs.readFileSync(path.join(previewOut,'index.html'),'utf8');
+  const previewKy=fs.readFileSync(path.join(previewOut,'ky','index.html'),'utf8');
+  const previewRobots=fs.readFileSync(path.join(previewOut,'robots.txt'),'utf8');
+  assert.ok(previewRu.includes('name="robots" content="noindex,nofollow,noarchive"'));
+  assert.ok(previewKy.includes('name="robots" content="noindex,nofollow,noarchive"'));
+  assert.ok(previewRu.includes('НЕ ОПУБЛИКОВАНО'),'Review copy must contain an unmistakable banner');
+  assert.ok(previewRu.includes("location.protocol==='file:'"),'Offline language navigation is required');
+  assert.ok(previewKy.includes("location.protocol==='file:'"),'Offline language navigation is required');
+  assert.ok(previewRobots.includes('Disallow: /'));
+  assert.ok(!previewRu.includes('mailto:'));
+  r=run(example,'https://other.example/',path.join(temp,'bad-preview-domain'),source,'preview');
+  assert.notEqual(r.status,0,'Preview mode must require reserved, non-public .invalid hostname');
+  r=run(cfg,'https://preview.invalid/',path.join(temp,'bad-release-domain'),source,'release');
+  assert.notEqual(r.status,0,'Release must reject preview-only hostname');
   console.log('PASS: SEO and optional future email staging tests. No network or production activity.');
 }finally{
   fs.rmSync(temp,{recursive:true,force:true});
