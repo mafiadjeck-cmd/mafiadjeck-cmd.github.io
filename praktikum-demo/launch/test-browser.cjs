@@ -61,6 +61,15 @@ async function main(){
       await page.locator('button[data-lang="ru"]').first().click();
       await page.waitForURL(base+'/',{timeout:10000});
       assert.equal(await page.locator('html').getAttribute('lang'),'ru',name+' Russian after returning');
+      const burger=page.locator('#burgerBtn');
+      if(await burger.isVisible()){
+        await burger.click();
+        assert.equal(await burger.getAttribute('aria-expanded'),'true',name+' nav opens');
+        assert.equal(await page.locator('#mainMenu').isVisible(),true,name+' menu visible when open');
+        await page.keyboard.press('Escape');
+        assert.equal(await burger.getAttribute('aria-expanded'),'false',name+' nav closes with Escape');
+        assert.equal(await page.locator('#mainMenu').isVisible(),false,name+' menu hidden when closed');
+      }
       const geometry=await page.evaluate(()=>{
         const rightLimit=window.innerWidth+2;
         return {
