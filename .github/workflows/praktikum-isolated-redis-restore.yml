@@ -1,0 +1,53 @@
+name: Praktikum isolated Redis restore integration
+on:
+  push:
+    branches:
+      - staging/praktikum-safe-2026-10-30
+    paths:
+      - 'praktikum-cms-server/server.js'
+      - 'praktikum-cms-server/tests/integration-redis.cjs'
+      - '.github/workflows/praktikum-isolated-redis-restore.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      disposable_redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      GITHUB_ACTIONS: 'true'
+      INTEGRATION_REDIS_BASE: redis://127.0.0.1:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install only current staged server dependencies
+        run: cd praktikum-cms-server && npm install --ignore-scripts --no-audit --no-fund
+      - name: Syntax validation
+        run: |
+          node --check praktikum-cms-server/server.js
+          node --check praktikum-cms-server/tests/integration-redis.cjs
+      - name: Integration test against disposable Redis DB14 and DB15
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cd praktikum-cms-server
+          node tests/integration-redis.cjs | tee isolated-integration-result.log
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: praktikum-isolated-restore-test-results
+          path: praktikum-cms-server/isolated-integration-result.log
+          if-no-files-found: error
+          retention-days: 7
