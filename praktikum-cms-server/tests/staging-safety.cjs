@@ -25,6 +25,12 @@ assert.ok(!admin.includes('sessionStorage'), 'Admin credential must not use sess
 assert.match(admin, /activeAdminKey/);
 assert.match(admin, /name="robots" content="noindex,nofollow,noarchive"/);
 assert.match(admin, /name="referrer" content="no-referrer"/);
+const jsonPayload = {text:'</script><img src=x onerror=alert(1)>'};
+const encodedJson = JSON.stringify(jsonPayload).replace(/</g,'\\u003c');
+assert.ok(!encodedJson.includes('</script>'), 'Stored JSON must not close its own script tag');
+assert.deepEqual(JSON.parse(encodedJson), jsonPayload, 'Stored JSON must retain its original values');
+assert.ok(admin.includes("sd.textContent=JSON.stringify(data).replace(/</g,'\\\\u003c')"),
+  'Admin publishing must encode HTML tag openers inside inline JSON');
 assert.match(home, /fetch\('https:\/\/praktikum-cms-api\.onrender\.com\/site/);
 assert.match(base, /id="site-data"/);
 console.log('Praktikum staging safety checks: PASS (code only, not live API).');
