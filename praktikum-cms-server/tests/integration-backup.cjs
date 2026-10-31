@@ -22,13 +22,14 @@ const report={checks:[],scope:'isolated-localhost-only',realClientData:false,ori
 let app=null,clientA=null,clientB=null;
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function check(name,cond){assert.ok(cond,'FAILED '+name);report.checks.push(name);console.log('PASS '+name)}
-async function startApp(enabled){
+async function startApp(enabled,db=14){
+  assert.ok([14,15].includes(db),'CMS integration may only connect to synthetic databases 14 or 15');
   assert.equal(app,null);
   app=spawn(process.execPath,['server.js'],{
     cwd:require('node:path').resolve(__dirname,'..'),
     env:{
       PATH:process.env.PATH,HOME:process.env.HOME,PORT:'19194',
-      REDIS_URL:redisBase+'/14',
+      REDIS_URL:redisBase+'/'+db,
       ADMIN_KEY:admin,
       ENABLE_BACKUP_EXPORT:enabled?'true':'false',
       BACKUP_EXPORT_KEY:enabled?backupKey:'',
@@ -157,6 +158,22 @@ async function run(){
     beforeSite===afterSite&&JSON.stringify(beforeStats.totals)===JSON.stringify(afterStats.totals));
   response=await request('/backup/export',{method:'POST',adminCredential:admin,backupCredential:backupKey,body:{passphrase}});
   check('export cooldown prevents rapid repeated downloads',response.status===429);
+  await stopApp();
+  await startApp(false,15);
+  const restoredPage=await request('/site');
+  const restoredMeta=await request('/meta');
+  const restoredStats=await request('/stats?days=7',{adminCredential:admin});
+  const disabledRoute=await request('/backup/export',{method:'POST',adminCredential:admin,backupCredential:backupKey,body:{passphrase}});
+  check('restored CMS serves exactly the original published HTML',
+    restoredPage.status===200&&restoredPage.raw===beforeSite);
+  check('restored CMS metadata matches source publication',
+    restoredMeta.status===200&&restoredMeta.json?.updatedAt===p.json.updatedAt);
+  check('restored CMS reports identical page counts and unique visitors',
+    restoredStats.status===200 &&
+    JSON.stringify(restoredStats.json.totals)===JSON.stringify(beforeStats.totals) &&
+    restoredStats.json.uniqueVisitors===beforeStats.uniqueVisitors);
+  check('restored CMS keeps backup endpoint disabled',
+    disabledRoute.status===404);
   report.exportedKeys=snapshot.keys;report.restoredKeys=restored;
   console.log('BACKUP_EXPORT_TEST_RESULT '+JSON.stringify(report));
 }
