@@ -5,6 +5,7 @@
 // No live export is possible while the protected route is disabled (default).
 const fs=require('node:fs');
 const path=require('node:path');
+const crypto=require('node:crypto');
 const {decryptBackup}=require('./backup-export.cjs');
 const URL='https://praktikum-cms-api.onrender.com/backup/export';
 function hiddenQuestion(question){
@@ -50,8 +51,15 @@ function inspect(snapshot){
       throw Error('Unexpected key in decrypted archive');
     seen.add(item.key);
   }
+  const hasPublishedHtml=seen.has('praktikum:published:html');
+  const hasPublishedMetadata=seen.has('praktikum:published:updatedAt');
+  if(snapshot.hasPublishedHtml!==hasPublishedHtml||
+     snapshot.hasPublishedMetadata!==hasPublishedMetadata||
+     snapshot.publicationVersionUnchanged!==true)
+    throw Error('Inconsistent publication completeness metadata');
   return {keys:seen.size,finishedAt:snapshot.finishedAt,scope:snapshot.scope,
-    atomic:snapshot.atomic,expiredDuringScan:snapshot.expiredDuringScan};
+    atomic:snapshot.atomic,expiredDuringScan:snapshot.expiredDuringScan,
+    hasPublishedHtml,hasPublishedMetadata};
 }
 async function main(){
   if(process.argv.length!==2)
@@ -87,8 +95,15 @@ async function main(){
   const name='praktikum-backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
   const target=path.join(process.cwd(),name);
   // Never overwrite a previous backup. Restrict Unix permissions when available.
-  fs.writeFileSync(target,JSON.stringify(envelope)+'\n',{flag:'wx',mode:0o600});
+  const encryptedFile=JSON.stringify(envelope)+'\n';
+  fs.writeFileSync(target,encryptedFile,{flag:'wx',mode:0o600});
+  const fileHash=crypto.createHash('sha256').update(encryptedFile).digest('hex');
   console.log('Encrypted snapshot saved: '+target);
+  console.log('Encrypted file SHA-256: '+fileHash);
+  console.log('Published HTML in archive: '+(details.hasPublishedHtml?'YES':'NO'));
+  console.log('Publication timestamp in archive: '+(details.hasPublishedMetadata?'YES':'NO'));
+  if(!details.hasPublishedHtml||!details.hasPublishedMetadata)
+    console.warn('WARNING: publication or its metadata is missing. Preserve this archive but DO NOT call it a complete site backup.');
   console.log('Verified: '+details.keys+' keys, scope '+details.scope+'; atomic snapshot: NO.');
   console.log('Redis/Valkey source is unchanged. Preserve the passphrase separately.');
   console.log('This is NOT proof of a complete real database backup until isolated restoration is tested.');
