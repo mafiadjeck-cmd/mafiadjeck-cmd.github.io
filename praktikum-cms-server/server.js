@@ -150,8 +150,13 @@ app.use(express.json({ limit: '15mb', type:['application/json','text/plain','app
 
 app.get('/', (req,res)=>res.json({ok:true,service:'praktikum-cms'}));
 app.get('/health', async (req,res)=>{
-  try{ await ensureRedis(); res.json({ok:true}); }
-  catch(e){ console.error('Health storage error',e); res.status(500).json({ok:false,error:'storage_unavailable'}); }
+  try{
+    await ensureRedis();
+    // Healthy storage does not imply the latest published content still exists.
+    const publishedStored = Boolean(await redis.exists('praktikum:published:html'));
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ok:true,storage:'connected',publishedStored});
+  }catch(e){ console.error('Health storage error',e); res.status(500).json({ok:false,error:'storage_unavailable'}); }
 });
 
 async function fallbackHtml(){
@@ -164,8 +169,10 @@ app.get('/site', async (req,res)=>{
   try{
     await ensureRedis();
     let html = await redis.get('praktikum:published:html');
+    const source = html ? 'redis' : 'fallback';
     if (!html) html = await fallbackHtml();
     html = normalizePublicHtml(html);
+    res.setHeader('X-Praktikum-Content-Source', source);
     res.setHeader('Content-Type','text/html; charset=utf-8');
     res.setHeader('Cache-Control','no-store, max-age=0');
     res.send(html);
@@ -253,13 +260,12 @@ app.get('/stats', async (req,res)=>{
       addMap(totals,row); addMap(sourcesRaw,sources); addMap(campaignsRaw,campaigns); addMap(devicesRaw,devices); addMap(langsRaw,langs);
       daily.push({date,uniqueVisitors:Number(unique||0),...Object.fromEntries(Object.entries(row).map(([k,v])=>[k,Number(v)]))});
     }
+    // PFCOUNT with multiple HyperLogLog keys estimates their union without
+    // creating and deleting a temporary Redis key on every stats request.
     const visitorKeys = dates.map(date=>`praktikum:analytics:visitors:${date}`);
-    const tempVisitors = `praktikum:analytics:range:${Date.now()}:${Math.random().toString(36).slice(2)}`;
     let uniqueVisitors = 0;
     if (visitorKeys.length) {
-      await redis.sendCommand(['PFMERGE', tempVisitors, ...visitorKeys]);
-      uniqueVisitors = Number(await redis.sendCommand(['PFCOUNT', tempVisitors])) || 0;
-      await redis.del(tempVisitors);
+      uniqueVisitors = Number(await redis.sendCommand(['PFCOUNT', ...visitorKeys])) || 0;
     }
     const top = o => Object.entries(o||{}).map(([name,value])=>({name,value:Number(value)})).sort((a,b)=>b.value-a.value).slice(0,12);
     res.setHeader('Cache-Control','no-store');
