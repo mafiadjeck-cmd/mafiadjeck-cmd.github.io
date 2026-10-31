@@ -87,6 +87,10 @@ async function run(){
   const event=await request('/event',{method:'POST',body:{event:'page_view',vid:'synthetic_visitor',source:'fixture',device:'mobile',lang:'RU'}});
   check('synthetic visit stored',event.status===204);
   await clientA.set('praktikum:backup:expires','temporary',{PX:120000});
+  // Exercise multi-page SCAN and thousands of Redis DUMP calls, not only a tiny fixture.
+  const batch=clientA.multi();
+  for(let i=0;i<1200;i++)batch.set('praktikum:backup:bulk:'+String(i).padStart(4,'0'),'synthetic-'+i);
+  await batch.exec();
   await clientA.set('not-praktikum:secret','NEVER_INCLUDED_IN_EXPORT');
   const beforeSite=(await request('/site')).raw;
   const beforeStats=(await request('/stats?days=7',{adminCredential:admin})).json;
@@ -97,7 +101,7 @@ async function run(){
     !response.raw.includes('SYNTHETIC_DATA') && !response.raw.includes('praktikum:published:html') && !response.raw.includes('NEVER_INCLUDED_IN_EXPORT'));
   check('response disables caching',response.headers.get('cache-control')?.includes('no-store'));
   const snapshot=decryptBackup(encrypted,passphrase);
-  check('read-only snapshot contains published and statistics keys',snapshot.keys>=6&&snapshot.records.some(r=>r.key==='praktikum:published:html')&&snapshot.records.some(r=>r.type==='hash'));
+  check('read-only snapshot covers 1200 extra synthetic keys across SCAN pages',snapshot.keys>=1206&&snapshot.records.some(r=>r.key==='praktikum:published:html')&&snapshot.records.some(r=>r.type==='hash'));
   check('namespace filter excludes unrelated keys',snapshot.records.every(r=>r.key.startsWith('praktikum:'))&&!snapshot.records.some(r=>r.key==='not-praktikum:secret'));
   check('snapshot is explicitly labeled non-atomic',snapshot.atomic===false);
   check('encrypted archive rejects wrong password',(()=>{try{decryptBackup(encrypted,'completely wrong but sufficiently long password');return false}catch{return true}})());
