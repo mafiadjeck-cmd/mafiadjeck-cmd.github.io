@@ -1,0 +1,20 @@
+# Praktikum only. Prevent accidentally committing production secrets and exported data.
+# These rules do not apply to other projects in this repository.
+/praktikum-cms-server/.env
+/praktikum-cms-server/.env.*
+!/praktikum-cms-server/.env.example
+/praktikum-cms-server/node_modules/
+/praktikum-cms-server/backup/
+/praktikum-cms-server/backups/
+/praktikum-cms-server/*.pkb
+/praktikum-cms-server/*.rdb
+/praktikum-cms-server/*.aof
+/praktikum-cms-server/dump-*.json
+/praktikum-cms-server/*.sqlite
+/praktikum-demo/backup/
+/praktikum-demo/backups/
+/praktikum-demo/*.pkb
+/praktikum-demo/*.rdb
+/praktikum-demo/*.aof
+/praktikum-demo/dump-*.json
+/praktikum-demo/*.sqlite
