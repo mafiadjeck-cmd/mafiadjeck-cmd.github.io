@@ -29,7 +29,7 @@ async function main(){
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const base='http://127.0.0.1:'+server.address().port;
-  const errors=[],externalRequests=[];
+  const errors=[],externalRequests=[],overflows=[];
   let browser;
   try{
     browser=await chromium.launch({headless:true});
@@ -61,11 +61,28 @@ async function main(){
       await page.locator('button[data-lang="ru"]').first().click();
       await page.waitForURL(base+'/',{timeout:10000});
       assert.equal(await page.locator('html').getAttribute('lang'),'ru',name+' Russian after returning');
-      const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
-      assert.equal(overflow,false,name+' horizontal viewport overflow');
+      const geometry=await page.evaluate(()=>{
+        const rightLimit=window.innerWidth+2;
+        return {
+          innerWidth:window.innerWidth,
+          scrollWidth:document.documentElement.scrollWidth,
+          elements:[...document.querySelectorAll('body *')].filter(el=>{
+            const r=el.getBoundingClientRect();
+            return r.width>1 && r.right>rightLimit;
+          }).slice(0,15).map(el=>{
+            const rect=el.getBoundingClientRect();
+            return {tag:el.tagName,id:el.id,className:String(el.className).slice(0,90),left:Math.round(rect.left),right:Math.round(rect.right),width:Math.round(rect.width)};
+          })
+        };
+      });
+      if(geometry.scrollWidth>geometry.innerWidth+2){
+        overflows.push({name,...geometry});
+        console.error('OVERFLOW_DIAGNOSTIC '+JSON.stringify({name,...geometry}));
+      }
       await page.close();
       console.log('PASS '+name+': RU -> KY -> RU clicks, language, titles, images and viewport');
     }
+    assert.deepEqual(overflows,[],'Viewport horizontal overflow diagnostic');
     assert.deepEqual(errors,[],'No client-side JavaScript exceptions');
     assert.equal(externalRequests.some(url=>url.includes('onrender.com')),false,'Preview must never call production API');
     console.log('PASS browser: no JS errors and no production API requests (other external resources blocked: '+externalRequests.length+')');
