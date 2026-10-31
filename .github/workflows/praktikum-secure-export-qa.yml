@@ -49,6 +49,7 @@ jobs:
         run: |
           node --check praktikum-cms-server/server.js
           node --check praktikum-cms-server/backup/backup-export.cjs
+          node --check praktikum-cms-server/backup/download-encrypted.cjs
           node --check praktikum-cms-server/tests/integration-backup.cjs
       - name: Encrypted backup and independent restore against disposable local database
         run: cd praktikum-cms-server && node tests/integration-backup.cjs | tee encrypted-backup-test.log
