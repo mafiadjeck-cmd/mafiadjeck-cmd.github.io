@@ -2,9 +2,13 @@
 // ONLY disposable localhost Redis under GitHub Actions; never connect to production.
 const assert=require('node:assert/strict');
 const {spawn}=require('node:child_process');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
 const {createClient}=require('redis');
 const {decryptBackup}=require('../backup/backup-export.cjs');
 const {inspect}=require('../backup/download-encrypted.cjs');
+const {TARGET,confirmation,assertArchive,restoreToEmptyLocal}=require('../backup/restore-isolated.cjs');
 assert.equal(process.env.GITHUB_ACTIONS,'true','Refusing to run outside isolated GitHub Actions');
 assert.equal(process.env.INTEGRATION_REDIS_BASE,'redis://127.0.0.1:6379','Refusing external Redis');
 const redisBase='redis://127.0.0.1:6379',url='http://127.0.0.1:19194';
@@ -97,10 +101,20 @@ async function run(){
   const beforeStats=(await request('/stats?days=7',{adminCredential:admin})).json;
   response=await request('/backup/export',{method:'POST',adminCredential:admin,backupCredential:backupKey,body:{passphrase}});
   check('authorized encrypted export succeeded',response.status===200&&response.json?.format==='praktikum-redis-encrypted-v1');
-  const encrypted=response.json;
+  let encrypted=response.json;
   check('ciphertext does not contain plaintext HTML, Redis key names or other-app value',
     !response.raw.includes('SYNTHETIC_DATA') && !response.raw.includes('praktikum:published:html') && !response.raw.includes('NEVER_INCLUDED_IN_EXPORT'));
   check('response disables caching',response.headers.get('cache-control')?.includes('no-store'));
+  // Test the actual encrypted file representation, not only an in-memory object.
+  const tmpDir=fs.mkdtempSync(path.join(os.tmpdir(),'praktikum-encrypted-'));
+  const backupFile=path.join(tmpDir,'test-ONLY-encrypted.json');
+  try{
+    fs.writeFileSync(backupFile,JSON.stringify(encrypted)+'\n',{mode:0o600,flag:'wx'});
+    const raw=fs.readFileSync(backupFile,'utf8');
+    check('encrypted archive saved and reloaded as JSON without plaintext',
+      !raw.includes('praktikum:published:html')&&!raw.includes('Synthetic published training'));
+    encrypted=JSON.parse(raw);
+  }finally{fs.rmSync(tmpDir,{recursive:true,force:true})}
   const snapshot=decryptBackup(encrypted,passphrase);
   const inspection=inspect(snapshot);
   check('download verifier confirms encrypted app-only snapshot',inspection.keys===snapshot.keys);
@@ -116,17 +130,21 @@ async function run(){
   check('encrypted archive rejects wrong password',(()=>{try{decryptBackup(encrypted,'completely wrong but sufficiently long password');return false}catch{return true}})());
   const changed={...encrypted,ciphertext:encrypted.ciphertext.slice(0,-4)+'AAAA'};
   check('encrypted archive detects tampering',(()=>{try{decryptBackup(changed,passphrase);return false}catch{return true}})());
-  let restored=0;
-  for(const key of snapshot.records){
-    const elapsed=Date.now()-key.capturedAt;
-    const ttl=key.pttl===-1?0:Math.max(0,key.pttl-elapsed);
-    if(key.pttl!==-1 && ttl===0)continue;
-    await clientB.restore(key.key,ttl,Buffer.from(key.encodedDump,'base64'));
-    assert.equal(await clientB.type(key.key),key.type);
-    if(key.pttl>0)assert.ok(await clientB.pTTL(key.key)>0);
-    restored++;
-  }
-  check('every captured entry restored into isolated DB15',restored===snapshot.records.length);
+  check('restore CLI rejects a non-local destination',
+    (()=>{try{assertArchive(snapshot);return true}catch{return false}})());
+  await assert.rejects(restoreToEmptyLocal(clientB,snapshot,{target:'redis://remote.invalid:6379/15',confirmation}),/only redis:\/\/127\.0\.0\.1/);
+  check('restore CLI refuses external target',true);
+  await assert.rejects(restoreToEmptyLocal(clientB,snapshot,{target:TARGET,confirmation:'NOT_CONFIRMED'}),/confirmation required/);
+  check('restore CLI requires explicit isolated-target confirmation',true);
+  await clientB.set('praktikum:unsafe:sentinel','no-overwrite');
+  await assert.rejects(restoreToEmptyLocal(clientB,snapshot,{target:TARGET,confirmation}),/non-empty isolated database/);
+  check('restore CLI refuses a non-empty local DB15',true);
+  assert.equal(await clientB.get('praktikum:unsafe:sentinel'),'no-overwrite');
+  await clientB.del('praktikum:unsafe:sentinel'); // only isolated DB15 cleanup in test
+  const restoredReport=await restoreToEmptyLocal(clientB,snapshot,{target:TARGET,confirmation});
+  const restored=restoredReport.restored;
+  check('encrypted-file restore recovered captured keys into isolated DB15',
+    restored===snapshot.records.length&&restoredReport.hasPublishedHtml&&restoredReport.hasPublishedMetadata);
   check('published page matches across isolated Redis instances',
     (await clientA.get('praktikum:published:html'))===(await clientB.get('praktikum:published:html')));
   const keysA=await clientA.hGetAll('praktikum:analytics:totals'),keysB=await clientB.hGetAll('praktikum:analytics:totals');
