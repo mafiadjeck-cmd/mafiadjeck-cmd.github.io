@@ -1,0 +1,80 @@
+name: Praktikum offline bilingual SEO review
+on:
+  push:
+    branches:
+      - staging/praktikum-safe-2026-10-30
+    paths:
+      - '.github/workflows/praktikum-seo-review-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read-only capture of current public page
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p snapshot review
+          SOURCE_STATUS=repository-fallback
+          if curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --max-time 90 --retry 2 --retry-delay 5 --retry-all-errors \
+            'https://praktikum-cms-api.onrender.com/site' -o snapshot/source.html &&
+            test "$(wc -c < snapshot/source.html)" -gt 1000 &&
+            grep -q 'id="site-data"' snapshot/source.html; then
+            SOURCE_STATUS=live-public-api
+          else
+            cp praktikum-demo/base.html snapshot/source.html
+          fi
+          echo "$SOURCE_STATUS" > review/SOURCE_STATUS.txt
+          echo "Preview HTML source: $SOURCE_STATUS"
+          node praktikum-demo/launch/build-static.mjs \
+            --mode preview \
+            --source snapshot/source.html \
+            --config praktikum-demo/launch/seo-email.config.example.json \
+            --site-url https://preview.invalid/ \
+            --out review/site
+      - name: Validate non-public review bundle
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          p=Path('review/site')
+          ru=(p/'index.html').read_text()
+          ky=(p/'ky/index.html').read_text()
+          robots=(p/'robots.txt').read_text()
+          for page in [ru,ky]:
+              assert 'name="robots" content="noindex,nofollow,noarchive"' in page
+              assert 'НЕ ОПУБЛИКОВАНО' in page
+              assert 'location.protocol==\'file:\'' in page
+              assert 'praktikum-first-party-analytics' not in page
+              assert 'mailto:' not in page
+              assert 'id="site-data"' in page
+          assert 'data-seo-locale="ru"' in ru
+          assert 'data-seo-locale="ky"' in ky
+          assert 'Disallow: /' in robots
+          print('PASS: safe bilingual review pages, no live analytics, no unverified mail')
+          PY
+          (cd review && find . -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt)
+          cat > review/README_RU.txt <<'EOF'
+          ПРАКТИКУМ — ТОЛЬКО ПРЕДПРОСМОТР SEO
+          Откройте site/index.html локально, для кыргызского языка — site/ky/index.html.
+          Это черновая версия с адресом preview.invalid, запретом индексации и без рабочей почты.
+          Исходный опубликованный HTML запрошен только методом GET. Если API не ответил,
+          использована резервная версия из GitHub. Источник указан в SOURCE_STATUS.txt.
+          Никаких изменений в реальной CMS, DNS, почте и хостинге нет.
+          НИКОГДА НЕ ПУБЛИКУЙТЕ ЭТОТ АРХИВ КАК РЕАЛЬНЫЙ САЙТ.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: praktikum-seo-private-review
+          path: review/
+          if-no-files-found: error
+          retention-days: 14
