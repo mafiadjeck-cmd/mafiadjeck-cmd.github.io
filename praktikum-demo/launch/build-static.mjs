@@ -10,7 +10,7 @@ function argumentsMap(args){
   for(let i=0;i<args.length;i+=2){
     if(!args[i]?.startsWith('--') || !args[i+1])fail('Expected --flag value');
     const k=args[i].slice(2);
-    if(!['source','config','site-url','out'].includes(k)||out[k])fail('Unknown/repeated flag: '+k);
+    if(!['source','config','site-url','out','mode'].includes(k)||out[k])fail('Unknown/repeated flag: '+k);
     out[k]=args[i+1];
   }
   if(['source','config','site-url','out'].some(k=>!out[k]))fail('Missing required --source, --config, --site-url or --out');
@@ -23,7 +23,7 @@ function setExactlyOnce(html,needle,value,label){
   if(i<0||html.indexOf(needle,i+needle.length)!==-1)fail('Unexpected HTML structure: '+label);
   return html.slice(0,i)+value+html.slice(i+needle.length);
 }
-function makeLocalizedHtml(source,config,origin,lang){
+function makeLocalizedHtml(source,config,origin,lang,mode){
   const meta=config.seo[lang];
   let html=source;
   if(!/<!doctype html>/i.test(html)||!/id=["']site-data["']/.test(html))fail('Not a verified Praktikum HTML document');
@@ -47,7 +47,7 @@ function makeLocalizedHtml(source,config,origin,lang){
   const languageInitNext="try{setLanguage(document.documentElement.getAttribute('data-seo-locale')||'ru');}catch(e){setLanguage(document.documentElement.getAttribute('data-seo-locale')||'ru');}";
   html=setExactlyOnce(html,languageInit,languageInitNext,'language initialization');
   const switcher="langBtns.forEach(function(b){b.addEventListener('click',function(){setLanguage(b.dataset.lang);});});";
-  const switcherNext="langBtns.forEach(function(b){b.addEventListener('click',function(){var p=b.dataset.lang==='ky'?'/ky/':'/';if(location.pathname!==p){location.assign(p)}else{setLanguage(b.dataset.lang)}});});";
+  const switcherNext="langBtns.forEach(function(b){b.addEventListener('click',function(){var p=b.dataset.lang==='ky'?'/ky/':'/';if(location.protocol==='file:'){p=b.dataset.lang==='ky'?(location.pathname.includes('/ky/')?'./index.html':'./ky/index.html'):(location.pathname.includes('/ky/')?'../index.html':'./index.html')}if(location.pathname!==p){location.assign(p)}else{setLanguage(b.dataset.lang)}});});";
   html=setExactlyOnce(html,switcher,switcherNext,'language switcher');
   const ru=origin+'/', ky=origin+'/ky/';
   const canonical=lang==='ky'?ky:ru;
@@ -63,12 +63,13 @@ function makeLocalizedHtml(source,config,origin,lang){
     '<meta property="og:url" content="'+esc(canonical)+'">',
     '<meta name="twitter:card" content="summary">',
   ];
-  if(config.ogImage){
+  if(mode==='preview')tags.push('<meta name="robots" content="noindex,nofollow,noarchive">');
+  if(config.ogImage && mode==='release'){
     const og=new URL(config.ogImage,ru);
     if(og.protocol!=='https:'||og.origin!==origin)fail('ogImage must use the verified HTTPS site domain');
     tags.push('<meta property="og:image" content="'+esc(og.href)+'">');
   }
-  if(config.verifiedOrganization){
+  if(config.verifiedOrganization && mode==='release'){
     const org=config.verifiedOrganization;
     if(!org.name||!org.type || !['Organization','EducationalOrganization','LocalBusiness'].includes(org.type))fail('Incorrect verifiedOrganization');
     const structured={'@context':'https://schema.org','@type':org.type,name:org.name,url:canonical};
@@ -78,10 +79,11 @@ function makeLocalizedHtml(source,config,origin,lang){
   }
   html=setExactlyOnce(html,'</head>',tags.join('\n')+'\n</head>','head');
   const address=String(config.contactEmail||'').trim();
-  if(address){
+  if(address && mode==='release'){
     if(!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(address))fail('Unverified or invalid contactEmail');
     html=setExactlyOnce(html,'</footer>','<p class="container"><a href="mailto:'+esc(address)+'">'+esc(address)+'</a></p>\n</footer>','footer');
   }
+  if(mode==='preview')html=setExactlyOnce(html,'<body>','<body>\n<div role="status" style="position:relative;z-index:100;background:#fff2b3;color:#222;text-align:center;padding:9px;font:14px Arial">ПРЕДПРОСМОТР / АЛДЫН АЛА КӨРҮҮ — НЕ ОПУБЛИКОВАНО</div>','preview banner');
   return html;
 }
 function xmlEscape(s){return esc(s)}
@@ -98,24 +100,28 @@ function generateSitemap(origin){
 function build(args) {
   const opts=argumentsMap(args);
   const config=JSON.parse(fs.readFileSync(opts.config,'utf8'));
-  if(config.editoriallyApproved!==true)fail('SEO texts and public business details require owner approval: editoriallyApproved=true');
+  const mode=opts.mode||'release';
+  if(!['release','preview'].includes(mode))fail('Unsupported build mode');
+  if(mode==='release' && config.editoriallyApproved!==true)fail('SEO texts and public business details require owner approval: editoriallyApproved=true');
   if(!config.seo?.ru?.title||!config.seo?.ru?.description||!config.seo?.ky?.title||!config.seo?.ky?.description)fail('Missing approved RU/KG SEO content');
   const domain=new URL(opts['site-url']);
   if(domain.protocol!=='https:'||domain.username||domain.password||domain.search||domain.hash||domain.pathname!=='/'||!domain.hostname.includes('.'))fail('Use a final HTTPS domain at its root, for example https://company.kg/');
   const origin=domain.origin;
+  if(mode==='preview' && domain.hostname!=='preview.invalid')fail('Preview may only use reserved non-public https://preview.invalid/ origin');
+  if(mode==='release' && domain.hostname.endsWith('.invalid'))fail('Reserved preview domain is forbidden for release');
   const root=path.resolve(opts.out);
   if(fs.existsSync(root)&&fs.readdirSync(root).length)fail('Output directory is not empty: '+root);
   const source=fs.readFileSync(opts.source,'utf8');
   // Render both languages BEFORE creating files: failures must not leave partial output.
-  const ru=makeLocalizedHtml(source,config,origin,'ru');
-  const ky=makeLocalizedHtml(source,config,origin,'ky');
+  const ru=makeLocalizedHtml(source,config,origin,'ru',mode);
+  const ky=makeLocalizedHtml(source,config,origin,'ky',mode);
   const sitemap=generateSitemap(origin);
-  const robots='User-agent: *\nAllow: /\nSitemap: '+origin+'/sitemap.xml\n';
+  const robots=mode==='preview'?'User-agent: *\nDisallow: /\n':'User-agent: *\nAllow: /\nSitemap: '+origin+'/sitemap.xml\n';
   fs.mkdirSync(path.join(root,'ky'),{recursive:true});
   fs.writeFileSync(path.join(root,'index.html'),ru);
   fs.writeFileSync(path.join(root,'ky','index.html'),ky);
   fs.writeFileSync(path.join(root,'sitemap.xml'),sitemap);
   fs.writeFileSync(path.join(root,'robots.txt'),robots);
-  console.log('Staged SEO files generated locally only. No network requests, no deployment and no email sent.');
+  console.log('Staged '+mode+' files generated locally only. No network requests, no deployment and no email sent.');
 }
 try{build(process.argv.slice(2))}catch(e){console.error('SEO STAGING ERROR:',e.message);process.exitCode=1}
