@@ -1,0 +1,69 @@
+name: Praktikum staging read-only snapshot
+on:
+  push:
+    branches:
+      - staging/praktikum-safe-2026-10-30
+    paths:
+      - .github/workflows/praktikum-staging-snapshot.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preserve repository-backed fallback and source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p snapshot/fallback snapshot/source snapshot/status
+          cp praktikum-demo/base.html snapshot/fallback/base.html
+          cp praktikum-demo/index.html snapshot/source/index.html
+          cp praktikum-demo/admin/index.html snapshot/source/admin.html
+          cp praktikum-cms-server/server.js snapshot/source/server.js
+          cp praktikum-cms-server/package.json snapshot/source/package.json
+          git rev-parse HEAD > snapshot/status/staging_commit.txt
+          cat > snapshot/README.txt <<'TXT'
+          PRAKTIKUM — EMERGENCY READ-ONLY SNAPSHOT
+          This is a GitHub Actions artifact from a staging branch.
+          fallback/base.html is from the GitHub repository, NOT a verified latest Redis version.
+          If live/current-site.html exists, GET /site succeeded and returned a plausible site HTML.
+          If not, read status/live-fetch.txt for the error.
+          This snapshot does NOT contain raw Redis keys, historical analytics, or server secrets.
+          The live Render service, Redis, production branch and CMS were NOT modified.
+          Save this artifact privately; it expires from GitHub Actions according to retention.
+          TXT
+      - name: Try current public CMS page (GET only, never POST)
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p snapshot/live
+          if curl --proto '=https' --tlsv1.2 --location --fail --silent --show-error --max-time 120 --retry 3 --retry-delay 8 --retry-all-errors 'https://praktikum-cms-api.onrender.com/site' --output snapshot/live/current-site.html; then
+            if [ "$(wc -c < snapshot/live/current-site.html)" -gt 1000 ] && grep -qi 'id="site-data"' snapshot/live/current-site.html; then
+              echo 'LIVE_SITE_CAPTURED_AND_BASIC_VALIDATION_PASSED' > snapshot/status/live-fetch.txt
+            else
+              rm -f snapshot/live/current-site.html
+              echo 'LIVE_SITE_INVALID_RESPONSE_NOT_SAVED' > snapshot/status/live-fetch.txt
+            fi
+          else
+            rm -f snapshot/live/current-site.html
+            echo 'LIVE_SITE_UNAVAILABLE_GET_FAILED' > snapshot/status/live-fetch.txt
+          fi
+          if curl --proto '=https' --tlsv1.2 --location --fail --silent --show-error --max-time 30 --retry 1 'https://praktikum-cms-api.onrender.com/meta' --output snapshot/live/meta.json; then
+            if ! python3 -m json.tool snapshot/live/meta.json >/dev/null; then
+              rm -f snapshot/live/meta.json
+            fi
+          else
+            rm -f snapshot/live/meta.json
+          fi
+          find snapshot -type f -print0 | sort -z | xargs -0 sha256sum > snapshot/status/SHA256SUMS.txt
+          cat snapshot/status/live-fetch.txt
+      - name: Upload snapshot artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: praktikum-readonly-snapshot
+          path: snapshot/
+          if-no-files-found: error
+          retention-days: 7
