@@ -443,77 +443,106 @@ section{padding-block:76px}
 }
 @keyframes menu-in{from{opacity:.72;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 
+
 .hero{
-  background:var(--white);padding:43px 0 38px;
+  background:var(--white);padding:31px 0;
   border-bottom:1px solid var(--ink-15)
 }
 .hero-grid{
-  grid-template-columns:minmax(0,1.37fr) minmax(290px,.86fr);
-  gap:clamp(40px,7vw,100px);align-items:center
+  grid-template-columns:minmax(0,1.7fr) minmax(200px,.72fr);
+  gap:clamp(25px,5vw,77px);align-items:center
 }
 .hero-copy{min-width:0;animation:hero-in .62s var(--tempo) both}
 .hero-kicker{
-  display:flex;align-items:center;gap:11px;margin:0 0 20px;color:var(--ink-70);
+  display:flex;align-items:center;gap:10px;margin:0 0 11px;color:var(--ink-70);
   font-size:13px;font-weight:600;letter-spacing:.015em
 }
-.hero-kicker:before{content:'';width:29px;height:1px;background:var(--brick);flex:none}
+.hero-kicker:before{content:'';width:26px;height:1px;background:var(--brick);flex:none}
 .hero h1{
-  max-width:12.4ch;font-size:clamp(50px,5.7vw,83px);line-height:1.035;text-wrap:balance;
-  font-weight:500;letter-spacing:-.058em;margin:0 0 20px
+  max-width:23ch;font-size:clamp(37px,4.3vw,62px);line-height:1.06;text-wrap:balance;
+  font-weight:500;letter-spacing:-.045em;margin:0 0 12px
 }
-html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)}
-.hero-sub{max-width:51ch;margin-bottom:12px;font-size:clamp(15px,1.5vw,18px);line-height:1.65}
-.hero-meta{margin-bottom:24px;color:var(--ink-70);font-size:13px;font-weight:600}
-.hero-ctas{gap:10px 14px;margin:0}
-.hero-ctas .btn{min-height:45px;padding:12px 17px}
-.hero-ctas .btn-ghost{border-color:transparent;border-bottom:1px solid var(--ink-15);border-radius:0;padding-inline:3px}
-.hero-ctas .btn-ghost:after{content:'↗';margin-left:4px;color:var(--brick);transition:transform .2s var(--tempo)}
-.hero-ctas .btn-ghost:hover{border-color:transparent;border-bottom-color:var(--brick)}
-.hero-ctas .btn-ghost:hover:after{transform:translate(2px,-2px)}
+html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
+.hero-sub{max-width:63ch;margin-bottom:7px;font-size:clamp(14px,1.4vw,16px);line-height:1.6}
+.hero-meta{margin-bottom:14px;color:var(--ink-70);font-size:12px;font-weight:600}
+.hero-ctas{gap:9px 14px;margin:0}
+.hero-ctas .btn{min-height:43px;padding:11px 16px}
+.hero-ctas .btn-ghost{border-color:var(--ink-15)}
+.hero-ctas .btn-ghost:hover{border-color:var(--brick)}
 .hero-figure{
-  position:relative;min-width:0;margin:0 9px 0 0;max-width:412px;
-  isolation:isolate;animation:hero-in .7s .09s var(--tempo) both
+  position:relative;min-width:0;margin:0 8px 0 0;max-width:340px;
+  justify-self:end;isolation:isolate;animation:hero-in .7s .09s var(--tempo) both
 }
-.hero-portrait{
-  position:relative;overflow:hidden;aspect-ratio:1.07;background:var(--ink-08)
-}
+.hero-portrait{position:relative;overflow:hidden;aspect-ratio:1.8;background:var(--ink-08)}
 .hero-figure:before{
-  content:'';position:absolute;z-index:-1;inset:12px -9px 8px 12px;
+  content:'';position:absolute;z-index:-1;inset:9px -8px 7px 9px;
   border:1px solid var(--ink-15)
 }
 .hero-portrait:after{
-  content:'';position:absolute;top:0;left:0;width:45px;height:3px;background:var(--brand-red)
+  content:'';position:absolute;top:0;left:0;width:43px;height:2px;background:var(--brand-red)
 }
 .hero-portrait img{
-  width:100%;height:100%;object-fit:cover;object-position:50% 8%;
+  width:100%;height:100%;object-fit:cover;object-position:50% 3%;
   transition:transform .6s var(--tempo)
 }
 @media(hover:hover){.hero-figure:hover img{transform:scale(1.028)}}
 .hero-figure figcaption{
-  display:flex;flex-direction:column;gap:4px;background:var(--navy);
-  color:#f2f6fa;padding:15px 17px;line-height:1.4
+  display:flex;flex-direction:column;gap:2px;background:var(--navy);
+  color:#f2f6fa;padding:9px 13px;line-height:1.4
 }
-.hero-figure figcaption strong{font-size:14px;font-weight:600}
-.hero-figure figcaption span{color:#d3e1ec;font-size:12px}
+.hero-figure figcaption strong{font-size:12px;font-weight:600}
+.hero-figure figcaption span{color:#d3e1ec;font-size:11px}
 @keyframes hero-in{from{opacity:.72;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
 
-.quick-links{padding:0;background:var(--paper);border-bottom:1px solid var(--ink-15)}
-.quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
-.quick-link{
-  display:flex;align-items:center;gap:9px;min-width:0;min-height:75px;
-  padding:10px 15px;text-decoration:none;transition:background .2s
+.directory{padding:27px 0 35px;background:var(--white);border-bottom:1px solid var(--ink-15)}
+.directory-grid{
+  display:grid;grid-template-columns:minmax(0,1.6fr) minmax(285px,.88fr);
+  align-items:start;gap:clamp(23px,4.5vw,64px)
 }
-.quick-link:first-child{padding-left:0}
-.quick-link:last-child{padding-right:0}
-.quick-link+.quick-link{border-left:1px solid var(--ink-15)}
-.quick-link:hover{background:var(--white)}
-.quick-text{min-width:0;line-height:1.35}
-.quick-text strong,.quick-text small{display:block}
-.quick-text strong{font-size:14px;font-weight:700}
-.quick-text small{color:var(--ink-70);margin-top:3px;font-size:12px}
-.quick-arrow{margin-left:auto;color:var(--brick);transition:transform .2s var(--tempo)}
-.quick-arrow svg{display:block;width:17px;height:17px}
-.quick-link:is(:hover,:focus-visible) .quick-arrow{transform:translateX(3px)}
+.directory-group{padding:16px 0 17px}
+.directory-group:first-child{padding-top:0}
+.directory-group+.directory-group{border-top:1px solid var(--ink-15)}
+.directory-group h2,.course-schedule h2{font-size:clamp(22px,2.1vw,29px);margin:0 0 8px}
+.directory-group p{margin:0 0 7px;color:var(--ink-70);font-size:14px;line-height:1.6}
+.directory-links{display:flex;flex-wrap:wrap;gap:1px 20px}
+.directory-link{
+  display:inline-flex;align-items:center;gap:5px;min-height:34px;
+  font-size:13px;font-weight:600;text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:4px;text-decoration-color:var(--ink-15)
+}
+.directory-link:after{content:'→';flex:none;color:var(--brick)}
+.directory-link:is(:hover,:focus-visible){color:var(--brick);text-decoration-color:currentColor}
+.directory .course-schedule{padding:19px 22px 21px;order:0}
+.course-schedule h2{margin-bottom:10px}
+.course-schedule .side-row{padding:6px 0;font-size:13px}
+.course-schedule .side-row dd{font-family:var(--sans)}
+.course-schedule .side-row dd.mono{font-family:ui-monospace,'Cascadia Code',Consolas,monospace;white-space:nowrap}
+.course-schedule .side-row a{text-underline-offset:3px}
+.course-schedule .price-note{padding:9px 11px;margin:10px 0 12px;font-size:13px}
+.course-schedule .btn-primary{width:100%}
+.course-notes .side-includes{margin:12px 0}
+@media(max-width:850px){
+  .hero-grid{grid-template-columns:minmax(0,1fr) minmax(190px,.65fr);gap:22px}
+  .hero h1{font-size:clamp(33px,4.8vw,50px)}
+  html[lang-mode="ky"] .hero h1{font-size:clamp(31px,4.1vw,43px)}
+}
+@media(max-width:670px){
+  .hero{padding:24px 0 21px}
+  .hero-grid{grid-template-columns:1fr}
+  .hero-kicker{font-size:12px;margin-bottom:9px}
+  .hero h1{font-size:clamp(34px,8.4vw,48px);margin-bottom:10px}
+  html[lang-mode="ky"] .hero h1{font-size:clamp(31px,7.4vw,44px)}
+  .hero-figure{display:none}
+  .hero-ctas .btn{width:auto;padding:10px 11px;font-size:12px}
+  .directory{padding:19px 0 23px}
+  .directory-grid{grid-template-columns:minmax(0,1fr);gap:11px}
+  .directory-group{padding:13px 0 14px}
+  .directory-group h2,.course-schedule h2{font-size:23px}
+  .directory-group p{font-size:13px}
+  .directory-link{min-height:39px}
+  .directory-links{gap:0 15px}
+  .directory .course-schedule{padding:15px 16px 17px}
+}
 
 #course{background:var(--white)}
 .course-layout{gap:clamp(34px,5vw,68px)}
@@ -581,14 +610,6 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
 }
 .float-cta[hidden]{display:none}
 @media(max-width:850px){
-  .hero-grid{grid-template-columns:minmax(0,1.25fr) minmax(210px,.8fr);gap:28px}
-  .hero h1{font-size:clamp(44px,6.6vw,57px)}
-  html[lang-mode="ky"] .hero h1{font-size:clamp(39px,5.7vw,53px)}
-  .hero-portrait{aspect-ratio:.87}
-  .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .quick-link:nth-child(n+3){border-top:1px solid var(--ink-15)}
-  .quick-link:nth-child(odd){padding-left:0;border-left:0}
-  .quick-link:nth-child(even){padding-right:0}
   .services-board{grid-template-columns:1fr}
   .services-board .service-featured h3{max-width:none}
   #teachers .teacher{padding-inline:14px}
@@ -610,26 +631,6 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
   .head-actions{gap:8px}
   .head-actions>.btn{display:none}
   .nav-list{padding-inline:18px}
-  .hero{padding:29px 0 27px}
-  .hero-grid{grid-template-columns:1fr;gap:23px}
-  .hero-kicker{margin-bottom:15px;font-size:12px}
-  .hero h1{font-size:clamp(40px,10.3vw,61px);max-width:13ch;margin-bottom:12px}
-  html[lang-mode="ky"] .hero h1{font-size:clamp(39px,8.7vw,56px)}
-  .hero-sub{font-size:14px}
-  .hero-meta{font-size:12px;margin-bottom:15px}
-  .hero-ctas .btn{width:auto;padding:11px 12px;font-size:13px}
-  .hero-ctas .btn-ghost{padding-inline:2px}
-  .hero-figure{max-width:none;margin-right:7px}
-  .hero-figure:before{inset:9px -7px 6px 9px}
-  .hero-portrait{aspect-ratio:1.85}
-  .hero-portrait img{object-position:50% 3%}
-  .hero-figure figcaption{padding:9px 11px;gap:2px}
-  .hero-figure figcaption strong{font-size:12px}
-  .hero-figure figcaption span{font-size:11px}
-  .quick-link{min-height:63px;padding:8px 10px}
-  .quick-text strong{font-size:13px}
-  .quick-text small{font-size:10px}
-  .quick-arrow svg{width:14px;height:14px}
   .teacher-grid,.practice-grid{grid-template-columns:minmax(0,1fr)}
   #teachers .teacher,#teachers .teacher+.teacher{
     display:grid;grid-template-columns:68px 1fr;gap:13px;padding:16px 0;border-left:0
@@ -657,7 +658,7 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
 }
 @media(prefers-reduced-motion:reduce){
   .hero-copy,.hero-figure,#siteHeader.nav-open .nav-list{animation:none}
-  .hero-figure:hover img,.quick-link:is(:hover,:focus-visible) .quick-arrow{transform:none}
+  .hero-figure:hover img{transform:none}
 }
 
 /* Videos load after the visitor chooses a clip. */
@@ -793,12 +794,8 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
         </p>
         <p class="hero-meta"><span class="i18n ru" data-content-key="text-013">Очно · Утренние, дневные и вечерние группы</span><span class="i18n ky" data-content-key="text-014">Офлайн · Эртең мененки, күндүзгү жана кечки топтор</span></p>
         <div class="hero-ctas">
-          <a class="btn btn-primary" href="https://wa.me/996220622221" target="_blank" rel="noopener">
-            <span class="i18n ru" data-content-key="text-015">Узнать о наборе</span><span class="i18n ky" data-content-key="text-016">Топ тууралуу билүү</span>
-          </a>
-          <a class="btn btn-ghost" href="#course">
-            <span class="i18n ru" data-content-key="text-017">Смотреть программу</span><span class="i18n ky" data-content-key="text-018">Программаны көрүү</span>
-          </a>
+          <a class="btn btn-primary" href="#format"><span class="i18n ru">Расписание</span><span class="i18n ky">Жадыбал</span></a>
+          <a class="btn btn-ghost" href="#accounting-services"><span class="i18n ru" data-content-key="text-243">Бухгалтерские услуги</span><span class="i18n ky" data-content-key="text-244">Бухгалтердик кызматтар</span></a>
         </div>
       </div>
       <figure class="hero-figure">
@@ -813,26 +810,53 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
     </div>
   </section>
 
-<nav class="quick-links" aria-label="Быстрые ссылки / Ыкчам шилтемелер">
-  <div class="container quick-grid">
-    <a class="quick-link" href="#course">
-      <span class="quick-text"><strong><span class="i18n ru">Программа курса</span><span class="i18n ky">Курстун программасы</span></strong><small><span class="i18n ru">Занятия, формат и набор</span><span class="i18n ky">Сабактар, формат жана кабыл алуу</span></small></span>
-      <span class="quick-arrow"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
-    </a>
-    <a class="quick-link" href="#services">
-      <span class="quick-text"><strong><span class="i18n ru">Услуги</span><span class="i18n ky">Кызматтар</span></strong><small><span class="i18n ru">Бухгалтерия и обучение</span><span class="i18n ky">Бухгалтерия жана окуу</span></small></span>
-      <span class="quick-arrow"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
-    </a>
-    <a class="quick-link" href="#teachers">
-      <span class="quick-text"><strong><span class="i18n ru">Преподаватели</span><span class="i18n ky">Мугалимдер</span></strong><small><span class="i18n ru">Опыт и специализация</span><span class="i18n ky">Тажрыйба жана адистик</span></small></span>
-      <span class="quick-arrow"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
-    </a>
-    <a class="quick-link" href="#library">
-      <span class="quick-text"><strong><span class="i18n ru">Библиотека</span><span class="i18n ky">Китепкана</span></strong><small><span class="i18n ru">Бланки, сервисы и памятки</span><span class="i18n ky">Бланктар, сервистер жана эскертмелер</span></small></span>
-      <span class="quick-arrow"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
-    </a>
+<section class="directory" aria-label="Курсы, услуги и материалы / Курстар, кызматтар жана материалдар">
+  <div class="container directory-grid">
+    <div class="directory-groups">
+      <article class="directory-group">
+        <h2><span class="i18n ru" data-content-key="extra-002">Обучение</span><span class="i18n ky" data-content-key="extra-003">Окуу</span></h2>
+        <p><span class="i18n ru">Курс «3 в 1», индивидуальные занятия и семинары.</span><span class="i18n ky">«3 в 1» курсу, жекече сабактар жана семинарлар.</span></p>
+        <ul class="directory-links">
+          <li><a class="directory-link" href="#course"><span class="i18n ru" data-content-key="text-231">Программа курса</span><span class="i18n ky" data-content-key="text-232">Курстун программасы</span></a></li>
+          <li><a class="directory-link" href="#format"><span class="i18n ru">Расписание</span><span class="i18n ky">Жадыбал</span></a></li>
+          <li><a class="directory-link" href="#teachers"><span class="i18n ru" data-content-key="extra-004">Преподаватели</span><span class="i18n ky" data-content-key="extra-005">Мугалимдер</span></a></li>
+          <li><a class="directory-link" href="#additional-courses"><span class="i18n ru">Курсы и семинары</span><span class="i18n ky">Курстар жана семинарлар</span></a></li>
+        </ul>
+      </article>
+      <article class="directory-group">
+        <h2><span class="i18n ru" data-content-key="text-243">Бухгалтерские услуги</span><span class="i18n ky" data-content-key="text-244">Бухгалтердик кызматтар</span></h2>
+        <p><span class="i18n ru" data-content-key="text-245">Расскажите, с какой задачей вам нужна помощь, и уточните условия у специалиста.</span><span class="i18n ky" data-content-key="text-246">Кайсы маселе боюнча жардам керек экенин айтып, шарттарын адистен тактаңыз.</span></p>
+        <ul class="directory-links">
+          <li><a class="directory-link" href="#accounting-services"><span class="i18n ru">Подробнее об услугах</span><span class="i18n ky">Кызматтар тууралуу</span></a></li>
+          <li><a class="directory-link" href="https://wa.me/996220622221" data-contact-purpose="services" target="_blank" rel="noopener"><span class="i18n ru" data-content-key="text-247">Обсудить задачу</span><span class="i18n ky" data-content-key="text-248">Маселени талкуулоо</span></a></li>
+        </ul>
+      </article>
+      <article class="directory-group">
+        <h2><span class="i18n ru">Практика и материалы</span><span class="i18n ky">Практика жана материалдар</span></h2>
+        <p><span class="i18n ru" data-content-key="text-157">Официальные источники и небольшие материалы для практики. Всё в одном месте.</span><span class="i18n ky" data-content-key="text-158">Расмий булактар жана практика үчүн чакан материалдар. Баары бир жерде.</span></p>
+        <ul class="directory-links">
+          <li><a class="directory-link" href="#practice"><span class="i18n ru">Тренажёр</span><span class="i18n ky">Машыктыргыч</span></a></li>
+          <li><a class="directory-link" href="#library"><span class="i18n ru" data-content-key="text-239">Библиотека</span><span class="i18n ky" data-content-key="text-240">Китепкана</span></a></li>
+        </ul>
+      </article>
+    </div>
+    <aside class="side-panel course-schedule" id="format" aria-labelledby="schedule-title">
+      <h2 id="schedule-title"><span class="i18n ru" data-content-key="text-099">Расписание и формат</span><span class="i18n ky" data-content-key="text-100">Жадыбал жана окуу форматы</span></h2>
+      <dl>
+        <div class="side-row"><dt><span class="i18n ru" data-content-key="text-111">Утро</span><span class="i18n ky" data-content-key="text-112">Эртең менен</span></dt><dd class="mono">9:00–12:00</dd></div>
+        <div class="side-row"><dt><span class="i18n ru" data-content-key="text-113">День</span><span class="i18n ky" data-content-key="text-114">Күндүз</span></dt><dd class="mono">13:00–16:00</dd></div>
+        <div class="side-row"><dt><span class="i18n ru" data-content-key="text-115">Вечер</span><span class="i18n ky" data-content-key="text-116">Кечинде</span></dt><dd class="mono">17:00–20:00</dd></div>
+        <div class="side-row"><dt><span class="i18n ru" data-content-key="text-101">Формат</span><span class="i18n ky" data-content-key="text-102">Формат</span></dt><dd><span class="i18n ru" data-content-key="text-103">офлайн</span><span class="i18n ky" data-content-key="text-104">офлайн</span></dd></div>
+        <div class="side-row"><dt><span class="i18n ru" data-content-key="text-107">Длительность</span><span class="i18n ky" data-content-key="text-108">Узактыгы</span></dt><dd><span class="i18n ru" data-content-key="text-109">1,5 месяца</span><span class="i18n ky" data-content-key="text-110">1,5 ай</span></dd></div>
+        <div class="side-row"><dt><span class="i18n ru" data-content-key="text-105">Адрес</span><span class="i18n ky" data-content-key="text-106">Дарек</span></dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query=%D0%91%D0%B8%D1%88%D0%BA%D0%B5%D0%BA%2C%20%D1%83%D0%BB.%20%D0%A2%D0%BE%D0%BA%D1%82%D0%BE%D0%B3%D1%83%D0%BB%D0%B0%2C%20208%2F1" target="_blank" rel="noopener"><span class="i18n ru">Бишкек, ул. Токтогула, 208/1</span><span class="i18n ky">Бишкек, Токтогул көчөсү, 208/1</span></a></dd></div>
+      </dl>
+      <div class="price-note"><span class="i18n ru">Стоимость уточняйте в WhatsApp. Дата следующего старта пока не определена. Напишите нам, чтобы подобрать группу.</span><span class="i18n ky">Баасын WhatsApp аркылуу тактаңыз. Кийинки топтун башталыш күнү азырынча аныктала элек. Топ тандоо үчүн бизге жазыңыз.</span></div>
+      <a class="btn btn-primary" href="https://wa.me/996220622221" target="_blank" rel="noopener">
+        <span class="i18n ru" data-content-key="text-125">Записаться в WhatsApp</span><span class="i18n ky" data-content-key="text-126">WhatsAppка жазылуу</span>
+      </a>
+    </aside>
   </div>
-</nav>
+</section>
 
 <section id="course">
     <div class="container">
@@ -899,16 +923,8 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
           </details>
         </div>
 
-        <div class="side-panel" id="format">
-          <h3><span class="i18n ru" data-content-key="text-099">Формат обучения</span><span class="i18n ky" data-content-key="text-100">Окутуу форматы</span></h3>
-          <dl>
-            <div class="side-row"><dt><span class="i18n ru" data-content-key="text-101">Формат</span><span class="i18n ky" data-content-key="text-102">Формат</span></dt><dd><span class="i18n ru" data-content-key="text-103">офлайн</span><span class="i18n ky" data-content-key="text-104">офлайн</span></dd></div>
-            <div class="side-row"><dt><span class="i18n ru" data-content-key="text-105">Адрес</span><span class="i18n ky" data-content-key="text-106">Дарек</span></dt><dd class="mono">Бишкек, ул. Токтогула, 208/1</dd></div>
-            <div class="side-row"><dt><span class="i18n ru" data-content-key="text-107">Длительность</span><span class="i18n ky" data-content-key="text-108">Узактыгы</span></dt><dd><span class="i18n ru" data-content-key="text-109">1,5 месяца</span><span class="i18n ky" data-content-key="text-110">1,5 ай</span></dd></div>
-            <div class="side-row"><dt><span class="i18n ru" data-content-key="text-111">Утро</span><span class="i18n ky" data-content-key="text-112">Эртең менен</span></dt><dd class="mono">9:00–12:00</dd></div>
-            <div class="side-row"><dt><span class="i18n ru" data-content-key="text-113">День</span><span class="i18n ky" data-content-key="text-114">Күндүз</span></dt><dd class="mono">13:00–16:00</dd></div>
-            <div class="side-row"><dt><span class="i18n ru" data-content-key="text-115">Вечер</span><span class="i18n ky" data-content-key="text-116">Кечинде</span></dt><dd class="mono">17:00–20:00</dd></div>
-          </dl>
+        <aside class="side-panel course-notes">
+          <h3><span class="i18n ru">Что входит в курс</span><span class="i18n ky">Курска эмнелер кирет</span></h3>
           <ul class="side-includes">
             <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8.5L6 12.5L14 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
               <span><span class="i18n ru" data-content-key="text-117">Бесплатное учебное пособие</span><span class="i18n ky" data-content-key="text-118">Акысыз окуу куралы</span></span></li>
@@ -917,11 +933,8 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
             <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8.5L6 12.5L14 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
               <span><span class="i18n ru" data-content-key="text-121">Помощь с трудоустройством после выпуска</span><span class="i18n ky" data-content-key="text-122">Бүтүргөндөн кийин жумушка орношууга жардам</span></span></li>
           </ul>
-          <div class="price-note"><span class="i18n ru">Стоимость уточняйте в WhatsApp. Дата следующего старта пока не определена. Напишите нам, чтобы подобрать группу.</span><span class="i18n ky">Баасын WhatsApp аркылуу тактаңыз. Кийинки топтун башталыш күнү азырынча аныктала элек. Топ тандоо үчүн бизге жазыңыз.</span></div>
-          <a class="btn btn-primary" style="width:100%; justify-content:center;" href="https://wa.me/996220622221" target="_blank" rel="noopener">
-            <span class="i18n ru" data-content-key="text-125">Записаться в WhatsApp</span><span class="i18n ky" data-content-key="text-126">WhatsAppка жазылуу</span>
-          </a>
-        </div>
+          <a href="#format" class="directory-link"><span class="i18n ru">Посмотреть расписание</span><span class="i18n ky">Жадыбалды көрүү</span></a>
+        </aside>
       </div>
     </div>
   </section>
@@ -933,12 +946,12 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
       </div>
       <div class="service-list">
       <div class="services-board">
-        <div class="service-row service-featured">
+        <div class="service-row service-featured" id="accounting-services">
         <h3><span class="i18n ru">Бухгалтерские услуги</span><span class="i18n ky">Бухгалтердик кызматтар</span></h3>
         <p><span class="i18n ru">Расскажите, с какой задачей вам нужна помощь, и уточните условия у специалиста.</span><span class="i18n ky">Кайсы маселе боюнча жардам керек экенин айтып, шарттарын адистен тактаңыз.</span></p>
         <a class="btn btn-primary btn-small" href="https://wa.me/996220622221" data-contact-purpose="services" target="_blank" rel="noopener"><span class="i18n ru">Обсудить задачу</span><span class="i18n ky">Маселени талкуулоо</span></a>
       </div>
-        <div class="services-list">
+        <div class="services-list" id="additional-courses">
           <div class="service-row">
             <h3><span class="i18n ru" data-content-key="text-167">Семинары для предпринимателей</span><span class="i18n ky" data-content-key="text-168">Ишкерлер үчүн семинарлар</span></h3>
             <p><span class="i18n ru" data-content-key="text-169">Например, двухдневный практикум по учёту импорта и экспорта: НДС при импорте, 0% при экспорте, валютный контроль, документы для проверки.</span><span class="i18n ky" data-content-key="text-170">Мисалы, импорт-экспорт эсеби боюнча эки күндүк практикум: НДС, валюта контролу, текшерүүдөн өтчү документтер.</span></p>
@@ -1321,14 +1334,14 @@ html[lang-mode="ky"] .hero h1{max-width:14.5ch;font-size:clamp(44px,5.25vw,74px)
   updateLanguage();
   if('IntersectionObserver' in window){
     const floatingContact=document.querySelector('.float-cta');
-    const quickLinks=document.querySelector('.quick-links');
+    const directory=document.querySelector('.directory');
     const header=$('siteHeader');
     const headerHeight=header.offsetHeight;
     const updateContact=rect=>floatingContact.hidden=rect.bottom>headerHeight;
-    updateContact(quickLinks.getBoundingClientRect());
+    updateContact(directory.getBoundingClientRect());
     const contactObserver=new IntersectionObserver(([entry])=>updateContact(entry.boundingClientRect),
       {rootMargin:'-'+headerHeight+'px 0px 0px'});
-    contactObserver.observe(quickLinks);
+    contactObserver.observe(directory);
   }
   if(!reduced.matches && 'IntersectionObserver' in window && typeof document.documentElement.animate==='function'){
     const reveal=new IntersectionObserver(entries=>{
