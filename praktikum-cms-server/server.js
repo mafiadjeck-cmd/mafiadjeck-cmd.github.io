@@ -158,6 +158,10 @@ app.get('/health', async (req,res)=>{
   catch(e){ console.error('Health storage error',e); res.status(500).json({ok:false,error:'storage_unavailable'}); }
 });
 
+function isCurrentLayout(html){
+  return typeof html === 'string' && html.includes('<meta name="praktikum-layout" content="2026-11">');
+}
+
 async function fallbackHtml(){
   const r = await fetch(baseUrl, { cache: 'no-store' });
   if (!r.ok) throw new Error('base_fetch_failed_'+r.status);
@@ -168,7 +172,7 @@ app.get('/site', async (req,res)=>{
   try{
     await ensureRedis();
     let html = await redis.get('praktikum:published:html');
-    if (!html) html = await fallbackHtml();
+    if (!isCurrentLayout(html)) html = await fallbackHtml();
     html = normalizePublicHtml(html);
     res.setHeader('Content-Type','text/html; charset=utf-8');
     res.setHeader('Cache-Control','no-store, max-age=0');
@@ -331,6 +335,9 @@ app.post('/publish', async (req,res)=>{
     let html = req.body && req.body.html;
     if (typeof html !== 'string' || html.length < 1000 || !/<html[\s>]/i.test(html) || !/id=["']site-data["']/i.test(html)) {
       return res.status(400).json({ok:false,error:'invalid_html'});
+    }
+    if (!isCurrentLayout(html)) {
+      return res.status(409).json({ok:false,error:'outdated_site_template'});
     }
     if (Buffer.byteLength(html,'utf8') > 12*1024*1024) {
       return res.status(413).json({ok:false,error:'html_too_large'});

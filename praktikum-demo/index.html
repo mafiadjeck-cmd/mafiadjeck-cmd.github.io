@@ -1,25 +1,54 @@
 <!doctype html>
 <html lang="ru">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Практикум</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практикум — бухгалтерские курсы в Бишкеке</title>
+  <meta name="description" content="Курсы бухучёта, 1С и налогообложения, бухгалтерские услуги и консультации в Бишкеке.">
+  <noscript><meta http-equiv="refresh" content="0;url=base.html"></noscript>
+  <style>
+    body{margin:0;background:#f2f5f7;color:#041f32;font:17px/1.5 system-ui,sans-serif}
+    main{max-width:45rem;padding:3rem 1.5rem;margin:auto}
+    a{color:#b91f28}
+  </style>
+</head>
 <body>
-<script>
-(async()=>{
-  try{
-    let html;
-    try{
-      const r=await fetch('https://praktikum-cms-api.onrender.com/site?ts='+Date.now(),{cache:'no-store'});
-      if(!r.ok) throw new Error('CMS '+r.status);
-      html=await r.text();
-    }catch(e){
-      const r=await fetch('base.html?ts='+Date.now(),{cache:'no-store'});
-      if(!r.ok) throw e;
-      html=await r.text();
-    }
-    document.open();document.write(html);document.close();
-  }catch(e){
-    document.body.innerHTML='<div style="font:16px Arial;padding:30px">Ошибка загрузки сайта. Обновите страницу.</div>';
-    console.error(e);
-  }
-})();
-</script>
-</body></html>
+  <main>
+    <h1>Практикум</h1>
+    <p>Бухгалтерские курсы и услуги в Бишкеке</p>
+    <a href="base.html">Открыть сайт</a>
+  </main>
+  <script>
+    (async function loadSite() {
+      const layout = '<meta name="praktikum-layout" content="2026-11">';
+      const fallback = new URL('base.html', location.href);
+      const directLink = document.querySelector('main a');
+      directLink.href = fallback.href + location.search + location.hash;
+      async function read(url, timeout) {
+        const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(timeout) });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const html = await response.text();
+        if (!html.includes(layout)) throw new Error('Unexpected site layout');
+        return html;
+      }
+      try {
+        let html;
+        try {
+          html = await read('https://praktikum-cms-api.onrender.com/site', 2200);
+        } catch {
+          html = await read(fallback, 5000);
+        }
+        document.open();
+        document.write(html);
+        document.close();
+        if (location.hash) requestAnimationFrame(() => {
+          try { document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView(); }
+          catch {}
+        });
+      } catch {
+        location.replace(directLink.href);
+      }
+    })();
+  </script>
+</body>
+</html>

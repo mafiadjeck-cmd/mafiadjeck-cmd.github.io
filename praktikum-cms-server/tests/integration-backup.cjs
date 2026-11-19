@@ -15,7 +15,7 @@ const redisBase='redis://127.0.0.1:6379',url='http://127.0.0.1:19194';
 const admin='SYNTHETIC_ADMIN_CREDENTIAL_DO_NOT_USE_IN_PRODUCTION';
 const backupKey='SYNTHETIC_BACKUP_2ND_FACTOR_ONLY_73_c9a3e3cbf9';
 const passphrase='Synthetic encryption test phrase is sufficiently long 1009!';
-const fakeHtml='<!doctype html><html lang="ru"><head><title>EXAMPLE</title></head><body>'
+const fakeHtml='<!doctype html><html lang="ru"><head><meta name="praktikum-layout" content="2026-11"><title>EXAMPLE</title></head><body>'
  +'<script id="site-data" type="application/json">{"synthetic":true}</script>'
  +'<main>'+'Synthetic published training only! '.repeat(70)+'</main></body></html>';
 const report={checks:[],scope:'isolated-localhost-only',realClientData:false,originWrites:false};
