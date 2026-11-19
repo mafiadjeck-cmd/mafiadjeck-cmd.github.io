@@ -38,6 +38,10 @@
         } catch {
           html = await read(fallback, 5000);
         }
+        // Previously published CMS copies can still contain the old headline.
+        html = html
+          .replace('data-content-key="text-009">Бухучёт, 1С и налоги с нуля за 1,5 месяца</span>', 'data-content-key="text-009">Бухучёт, 1С и налоги с нуля.</span>')
+          .replace('data-content-key="text-010">Бухгалтердик эсеп, 1С жана салыктар — нөлдөн баштап 1,5 айда</span>', 'data-content-key="text-010">Бухгалтердик эсеп, 1С жана салыктар — нөлдөн баштап.</span>');
         document.open();
         document.write(html);
         document.close();
