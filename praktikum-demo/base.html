@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="praktikum-layout" content="2026-11">
+<meta name="praktikum-content" content="groups-and-lessons-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Практикум — бухгалтерские курсы в Бишкеке</title>
 <meta name="description" content="Курс «3 в 1»: бухучёт, 1С и налогообложение за 1,5 месяца. Практикующие преподаватели, помощь с трудоустройством. Бишкек, ул. Токтогула, 208/1.">
@@ -731,6 +732,50 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
   .video-details h3 { font-size: 20px; }
 }
 
+
+/* Course groups, open lesson and reading links */
+.feature-section{padding-block:clamp(38px,6vw,80px);border-block-start:1px solid var(--ink-15);background:var(--white)}
+.feature-tinted{background:var(--paper)}
+.feature-heading{max-width:68ch;margin-bottom:24px}
+.feature-heading .section-kicker{margin:0 0 6px}
+.enrollment-grid,.guide-grid{display:grid;gap:16px}
+.enrollment-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.enrollment-card,.guide-card,.lesson-document{min-width:0;background:var(--white);border:1px solid var(--ink-15);padding:clamp(16px,2.4vw,25px)}
+.enrollment-card{display:flex;flex-direction:column;border-top:3px solid var(--navy);overflow-wrap:anywhere}
+.enrollment-format{color:var(--ink-70);font-weight:700;font-size:.85rem;margin:0 0 8px}
+.enrollment-card h3,.guide-card h4,.lesson-document h3{margin:0 0 9px;font-size:clamp(20px,2.1vw,27px);line-height:1.13}
+.enrollment-description,.guide-card p,.lesson-note{color:var(--ink-70);margin:0 0 14px}
+.enrollment-details{margin:auto 0 10px}
+.enrollment-details div{display:grid;grid-template-columns:minmax(94px,.85fr) minmax(0,1.15fr);gap:8px;padding:8px 0;border-top:1px solid var(--ink-15);font-size:.91rem}
+.enrollment-details dt{color:var(--ink-70)}
+.enrollment-details dd{margin:0;font-weight:600}
+.enrollment-actions{display:grid;justify-items:start;gap:6px}
+.enrollment-actions .btn,.guide-link,.feature-actions .btn{min-height:44px;white-space:normal;max-width:100%}
+.guide-link{display:inline-flex;align-items:center;color:var(--ink);text-decoration:underline;text-underline-offset:4px;font-weight:700}
+.guide-link:hover{color:var(--brick-dark)}
+.library-guides{margin:0 0 26px;padding-top:14px;border-top:1px solid var(--ink-15)}
+.library-guides h3{font-size:clamp(22px,2.6vw,31px);margin:0 0 12px}
+.guide-grid,.first-lesson-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.guide-card{display:flex;flex-direction:column;align-items:flex-start}
+.guide-card .guide-link{margin-top:auto}
+.first-lesson-grid{display:grid;gap:16px;align-items:start}
+.lesson-steps{margin:0 0 16px;padding-inline-start:1.3rem}
+.lesson-steps li+li{margin-top:10px}
+.lesson-document .lesson-note{margin:0;font-size:.9rem}
+.first-lesson-trainer{min-width:0;overflow-wrap:anywhere}
+.first-lesson-trainer h3{margin-top:0}
+.feature-actions{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:16px}
+.lesson-video{max-width:630px;margin-bottom:20px}
+.lesson-video[hidden]{display:none}
+.service-intake{padding:0;margin:0;width:100%}
+.service-intake div{padding:9px 0;border-top:1px solid rgba(242,246,250,.24)}
+.service-intake dt{font-weight:700}
+.service-intake dd{margin:3px 0 0;color:#d3e1ec}
+@media(max-width:950px){.enrollment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){
+  .enrollment-grid,.guide-grid,.first-lesson-grid{grid-template-columns:minmax(0,1fr)}
+  .enrollment-actions .btn{width:100%}
+}
 </style>
 </head>
 <body>
@@ -753,7 +798,7 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
     </a>
     <nav class="mainnav" aria-label="Разделы сайта / Сайттын бөлүмдөрү">
       <ul class="nav-list" id="mainMenu">
-        <li><a href="#course"><span class="i18n ru">Обучение</span><span class="i18n ky">Окуу</span></a></li>
+        <li><a href="#groups"><span class="i18n ru">Обучение</span><span class="i18n ky">Окуу</span></a></li>
         <li><a href="#services"><span class="i18n ru">Услуги</span><span class="i18n ky">Кызматтар</span></a></li>
         <li><a href="#teachers"><span class="i18n ru">Преподаватели</span><span class="i18n ky">Мугалимдер</span></a></li>
 
@@ -765,7 +810,7 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
       <div class="head-actions">
         <div class="lang-switch" role="group" aria-label="Язык / Тил">
           <button type="button" class="lang-btn is-active" data-lang="ru">RU</button>
-          <button type="button" class="lang-btn" data-lang="ky">KY</button>
+          <button type="button" class="lang-btn" data-lang="ky">KG</button>
         </div>
         <a class="btn btn-primary btn-small" href="https://wa.me/996220622221" target="_blank" rel="noopener">
           <span class="i18n ru" data-content-key="text-005">Записаться</span><span class="i18n ky" data-content-key="text-006">Жазылуу</span>
@@ -794,7 +839,7 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
         </p>
         <p class="hero-meta"><span class="i18n ru" data-content-key="text-013">Очно · Утренние, дневные и вечерние группы</span><span class="i18n ky" data-content-key="text-014">Офлайн · Эртең мененки, күндүзгү жана кечки топтор</span></p>
         <div class="hero-ctas">
-          <a class="btn btn-primary" href="#format"><span class="i18n ru">Расписание</span><span class="i18n ky">Жадыбал</span></a>
+          <a class="btn btn-primary" href="#groups"><span class="i18n ru">Ближайшие группы</span><span class="i18n ky">Жакынкы топтор</span></a>
           <a class="btn btn-ghost" href="#accounting-services"><span class="i18n ru" data-content-key="text-243">Бухгалтерские услуги</span><span class="i18n ky" data-content-key="text-244">Бухгалтердик кызматтар</span></a>
         </div>
       </div>
@@ -818,7 +863,7 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
         <p><span class="i18n ru">Курс «3 в 1», индивидуальные занятия и семинары.</span><span class="i18n ky">«3 в 1» курсу, жекече сабактар жана семинарлар.</span></p>
         <ul class="directory-links">
           <li><a class="directory-link" href="#course"><span class="i18n ru" data-content-key="text-231">Программа курса</span><span class="i18n ky" data-content-key="text-232">Курстун программасы</span></a></li>
-          <li><a class="directory-link" href="#format"><span class="i18n ru">Расписание</span><span class="i18n ky">Жадыбал</span></a></li>
+          <li><a class="directory-link" href="#groups"><span class="i18n ru">Ближайшие группы</span><span class="i18n ky">Жакынкы топтор</span></a></li>
           <li><a class="directory-link" href="#teachers"><span class="i18n ru" data-content-key="extra-004">Преподаватели</span><span class="i18n ky" data-content-key="extra-005">Мугалимдер</span></a></li>
           <li><a class="directory-link" href="#additional-courses"><span class="i18n ru">Курсы и семинары</span><span class="i18n ky">Курстар жана семинарлар</span></a></li>
         </ul>
@@ -835,13 +880,14 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
         <h2><span class="i18n ru">Практика и материалы</span><span class="i18n ky">Практика жана материалдар</span></h2>
         <p><span class="i18n ru" data-content-key="text-157">Официальные источники и небольшие материалы для практики. Всё в одном месте.</span><span class="i18n ky" data-content-key="text-158">Расмий булактар жана практика үчүн чакан материалдар. Баары бир жерде.</span></p>
         <ul class="directory-links">
+          <li><a class="directory-link" href="#first-lesson"><span class="i18n ru">Открытый урок по 1С</span><span class="i18n ky">1С боюнча ачык сабак</span></a></li>
           <li><a class="directory-link" href="#practice"><span class="i18n ru">Тренажёр</span><span class="i18n ky">Машыктыргыч</span></a></li>
           <li><a class="directory-link" href="#library"><span class="i18n ru" data-content-key="text-239">Библиотека</span><span class="i18n ky" data-content-key="text-240">Китепкана</span></a></li>
         </ul>
       </article>
     </div>
     <aside class="side-panel course-schedule" id="format" aria-labelledby="schedule-title">
-      <h2 id="schedule-title"><span class="i18n ru" data-content-key="text-099">Расписание и формат</span><span class="i18n ky" data-content-key="text-100">Жадыбал жана окуу форматы</span></h2>
+      <h2 id="schedule-title"><span class="i18n ru" data-content-key="text-099">Очные занятия «3 в 1»</span><span class="i18n ky" data-content-key="text-100">«3 в 1» офлайн сабактары</span></h2>
       <dl>
         <div class="side-row"><dt><span class="i18n ru" data-content-key="text-111">Утро</span><span class="i18n ky" data-content-key="text-112">Эртең менен</span></dt><dd class="mono">9:00–12:00</dd></div>
         <div class="side-row"><dt><span class="i18n ru" data-content-key="text-113">День</span><span class="i18n ky" data-content-key="text-114">Күндүз</span></dt><dd class="mono">13:00–16:00</dd></div>
@@ -855,6 +901,17 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
         <span class="i18n ru" data-content-key="text-125">Записаться в WhatsApp</span><span class="i18n ky" data-content-key="text-126">WhatsAppка жазылуу</span>
       </a>
     </aside>
+  </div>
+</section>
+
+<section id="groups" class="feature-section" aria-labelledby="groups-title">
+  <div class="container">
+    <div class="section-head feature-heading">
+      <h2 id="groups-title" class="eyebrow-title"><span class="i18n ru">Ближайшие группы</span><span class="i18n ky">Жакынкы окуу топтору</span></h2>
+      <p class="section-lede" id="group-summary"><span class="i18n ru">Выберите подходящую программу. Дату старта и стоимость можно уточнить у администратора.</span><span class="i18n ky">Өзүңүзгө ылайыктуу программаны тандаңыз. Баштала турган күндү жана баасын администратордон тактай аласыз.</span></p>
+    </div>
+    <div class="enrollment-grid" id="enrollment-grid"></div>
+    <noscript><p><a href="https://wa.me/996220622221" target="_blank" rel="noopener"><span class="i18n ru">Узнать о ближайших группах в WhatsApp</span><span class="i18n ky">Жакынкы топторду WhatsAppтан тактоо</span></a></p></noscript>
   </div>
 </section>
 
@@ -948,7 +1005,11 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
       <div class="services-board">
         <div class="service-row service-featured" id="accounting-services">
         <h3><span class="i18n ru">Бухгалтерские услуги</span><span class="i18n ky">Бухгалтердик кызматтар</span></h3>
-        <p><span class="i18n ru">Расскажите, с какой задачей вам нужна помощь, и уточните условия у специалиста.</span><span class="i18n ky">Кайсы маселе боюнча жардам керек экенин айтып, шарттарын адистен тактаңыз.</span></p>
+        <p><span class="i18n ru">Опишите задачу по учёту, документам, отчётности или работе в 1С. Специалист уточнит, чем центр может помочь и в каком формате.</span><span class="i18n ky">Эсеп, документтер, отчёттуулук же 1С боюнча сурооңузду жазыңыз. Адис борбор кандай жардам бере аларын жана анын форматын тактайт.</span></p>
+        <dl class="service-intake">
+          <div><dt><span class="i18n ru">Что подготовить</span><span class="i18n ky">Эмнени даярдоо керек</span></dt><dd><span class="i18n ru">Кратко опишите, чем занимается бизнес, за какой период вопрос и какой результат вам нужен.</span><span class="i18n ky">Бизнес эмне менен алектенерин, суроо кайсы мезгилге тиешелүү экенин жана кандай жыйынтык керектигин кыскача жазыңыз.</span></dd></div>
+          <div><dt><span class="i18n ru">Как проходит первый разговор</span><span class="i18n ky">Алгачкы сүйлөшүү кандай өтөт</span></dt><dd><span class="i18n ru">Напишите в WhatsApp. Специалист уточнит детали, возможный объём работы и условия.</span><span class="i18n ky">WhatsApp аркылуу жазыңыз. Адис чоо-жайын, иштин мүмкүн болгон көлөмүн жана шарттарын тактайт.</span></dd></div>
+        </dl>
         <a class="btn btn-primary btn-small" href="https://wa.me/996220622221" data-contact-purpose="services" target="_blank" rel="noopener"><span class="i18n ru">Обсудить задачу</span><span class="i18n ky">Маселени талкуулоо</span></a>
       </div>
         <div class="services-list" id="additional-courses">
@@ -1101,6 +1162,33 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
     </div>
   </section>
 
+<section id="first-lesson" class="feature-section feature-tinted" aria-labelledby="first-lesson-title">
+  <div class="container">
+    <div class="section-head feature-heading">
+      <p class="section-kicker"><span class="i18n ru">Открытый мини-урок · 5 минут</span><span class="i18n ky">Ачык мини-сабак · 5 мүнөт</span></p>
+      <h2 id="first-lesson-title" class="eyebrow-title"><span class="i18n ru">Первая операция в 1С</span><span class="i18n ky">1Сдеги биринчи операция</span></h2>
+      <p class="section-lede"><span class="i18n ru">Магазин получил 4 упаковки бумаги по 500 сом. Оплаты ещё не было. Посмотрим, как отразить поступление на учебном примере.</span><span class="i18n ky">Дүкөнгө ар бири 500 сомдон 4 таңгак кагаз келди. Төлөм али жүргүзүлө элек. Товардын келип түшүшүн окуу мисалында чагылдырып көрөлү.</span></p>
+    </div>
+    <div id="lesson-video" class="lesson-video" hidden></div>
+    <div class="first-lesson-grid">
+      <div class="lesson-document">
+        <h3><span class="i18n ru">Что занести в документ</span><span class="i18n ky">Документке эмне киргизилет</span></h3>
+        <ol class="lesson-steps">
+          <li><span class="i18n ru">Создайте документ поступления товаров. Выберите поставщика и склад.</span><span class="i18n ky">Товарлардын келип түшүү документин түзүңүз. Жеткирүүчүнү жана кампаны тандаңыз.</span></li>
+          <li><span class="i18n ru">Добавьте бумагу, количество и цену. Сверьте сумму 2 000 сом с накладной.</span><span class="i18n ky">Кагазды, санын жана баасын киргизиңиз. 2 000 сомду коштомо кагаздагы сумма менен салыштырыңыз.</span></li>
+          <li><span class="i18n ru">Проведите документ и откройте его проводки. Проверьте товар на складе и расчёты с поставщиком.</span><span class="i18n ky">Документти өткөрүп, анын бухгалтердик жазууларын ачыңыз. Кампадагы товарды жана жеткирүүчү менен эсептешүүнү текшериңиз.</span></li>
+        </ol>
+        <p class="lesson-note"><span class="i18n ru">Названия документов и команд могут отличаться в разных конфигурациях 1С. В примере опускаем налоги.</span><span class="i18n ky">Документтердин жана буйруктардын аталышы 1С конфигурациясына жараша айырмаланышы мүмкүн. Бул мисалда салыктар эске алынган жок.</span></p>
+      </div>
+      <div id="first-lesson-trainer" class="trainer first-lesson-trainer"></div>
+    </div>
+    <div class="feature-actions">
+      <a class="btn btn-ghost" href="#practice"><span class="i18n ru">Ещё задачи по проводкам</span><span class="i18n ky">Бухгалтердик жазуулар боюнча дагы тапшырмалар</span></a>
+      <a class="btn btn-primary" href="#groups"><span class="i18n ru">Подобрать группу</span><span class="i18n ky">Топ тандоо</span></a>
+    </div>
+  </div>
+</section>
+
 <section id="practice" class="practice-section"><div class="container practice-grid"><div class="practice-intro"><p class="section-kicker"><span class="i18n ru" data-content-key="text-063">ПОПРОБУЙТЕ ПРОФЕССИЮ</span><span class="i18n ky" data-content-key="text-064">КЕСИПТИ БАЙКАП КӨРҮҢҮЗ</span></p><h2><span class="i18n ru" data-content-key="text-065">Ваша первая<br>проводка</span><span class="i18n ky" data-content-key="text-066">Сиздин биринчи<br>өткөрмөңүз</span></h2><p><span class="i18n ru" data-content-key="text-067">Три короткие задачи на логику учёта. Выберите ответ и сразу получите объяснение.</span><span class="i18n ky" data-content-key="text-068">Эсеп логикасы боюнча үч кыска тапшырма. Жооп тандап, дароо түшүндүрмө алыңыз.</span></p><p class="practice-note"><span class="i18n ru" data-content-key="text-069">Можно ошибаться. Здесь мы учимся.</span><span class="i18n ky" data-content-key="text-070">Ката кетирсеңиз болот. Бул жерде үйрөнөбүз.</span></p></div><div class="trainer" id="trainer"><noscript><span class="i18n ru" data-content-key="text-071">Для тренажёра включите JavaScript.</span><span class="i18n ky" data-content-key="text-072">Машыгуу үчүн JavaScriptти күйгүзүңүз.</span></noscript></div>
 <div class="practice-example">
 <div class="live-ledger" aria-label="Учебный пример движения средств">
@@ -1116,6 +1204,21 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
 </div></section>
 
 <section id="library" class="library-section"><div class="container"><div class="library-heading"><div><p class="section-kicker"><span class="i18n ru" data-content-key="text-153">СОХРАНИТЕ ПОД РУКОЙ</span><span class="i18n ky" data-content-key="text-154">КОЛ АЛДЫҢЫЗДА БОЛСУН</span></p><h2 class="eyebrow-title"><span class="i18n ru" data-content-key="text-155">Библиотека бухгалтера</span><span class="i18n ky" data-content-key="text-156">Бухгалтердин китепканасы</span></h2><p class="section-lede"><span class="i18n ru" data-content-key="text-157">Официальные источники и небольшие материалы для практики. Всё в одном месте.</span><span class="i18n ky" data-content-key="text-158">Расмий булактар жана практика үчүн чакан материалдар. Баары бир жерде.</span></p></div><span class="library-seal" aria-hidden="true">§</span></div>
+<div id="accounting-guides" class="library-guides" aria-labelledby="accounting-guides-title">
+  <h3 id="accounting-guides-title"><span class="i18n ru">Разборы из практики</span><span class="i18n ky">Практикалык талдоолор</span></h3>
+  <div class="guide-grid">
+    <article class="guide-card">
+      <h4><span class="i18n ru">ЭСФ 2.0. Как разобрать расхождение</span><span class="i18n ky">ЭЭФ 2.0. Айырманы кантип текшерүү керек</span></h4>
+      <p><span class="i18n ru">Учебная ситуация с неверной ценой, ссылки на ГНС и памятка для самопроверки.</span><span class="i18n ky">Баа туура эмес жазылган окуу мисалы, Салык кызматынын булагы жана текшерүү үчүн эстеткич.</span></p>
+      <a class="guide-link" data-guide="esf" href="materials.html#esf"><span class="i18n ru">Читать разбор ↗</span><span class="i18n ky">Талдоону окуу ↗</span></a>
+    </article>
+    <article class="guide-card">
+      <h4><span class="i18n ru">Импорт. Как собрать документы по поставке</span><span class="i18n ky">Импорт. Жеткирүү документтерин кантип топтоо керек</span></h4>
+      <p><span class="i18n ru">Пример реестра документов по одной поставке и вопросы для обсуждения с бухгалтером.</span><span class="i18n ky">Бир жеткирүү боюнча документтердин реестри жана бухгалтер менен талкуулай турган суроолор.</span></p>
+      <a class="guide-link" data-guide="import" href="materials.html#import"><span class="i18n ru">Читать разбор ↗</span><span class="i18n ky">Талдоону окуу ↗</span></a>
+    </article>
+  </div>
+</div>
 <div class="library-tools"><label class="library-search"><span><span class="i18n ru" data-content-key="text-159">Найти материал</span><span class="i18n ky" data-content-key="text-160">Материал издөө</span></span><input id="resourceSearch" type="search" placeholder="" autocomplete="off" aria-describedby="resourceCount"></label><div id="resourceFilters" class="resource-filters" role="group" aria-label="Категории материалов"></div></div><p id="resourceCount" class="resource-count" role="status" aria-live="polite"></p><div id="resourceGrid" class="resource-grid"></div><noscript><p><span class="i18n ru" data-content-key="text-161">Для поиска включите JavaScript. Официальные документы доступны на</span><span class="i18n ky" data-content-key="text-162">Издөө үчүн JavaScriptти күйгүзүңүз. Расмий документтер:</span> <a href="https://cbd.minjust.gov.kg/search-docs/ru">cbd.minjust.gov.kg</a>.</p></noscript>
 <p class="library-disclaimer"><span class="i18n ru" data-content-key="text-163">Учебные материалы не являются официальными бланками. Перед применением документа проверьте его действующую редакцию и требования на сайте ведомства.</span><span class="i18n ky" data-content-key="text-164">Окуу материалдары расмий бланктар эмес. Документти колдонуудан мурун анын күчүндөгү редакциясын жана мекеменин талаптарын текшериңиз.</span></p></div></section>
 
@@ -1195,7 +1298,9 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
     try{localStorage.setItem('praktikum-language',lang);}catch(e){}
   }
   langBtns.forEach(function(b){b.addEventListener('click',function(){setLanguage(b.dataset.lang);});});
-  try{setLanguage(localStorage.getItem('praktikum-language')||'ru');}catch(e){setLanguage('ru');}
+  var preferredLang=new URLSearchParams(location.search).get('lang');
+  if(preferredLang==='ru'||preferredLang==='ky')setLanguage(preferredLang);
+  else try{setLanguage(localStorage.getItem('praktikum-language')||'ru');}catch(e){setLanguage('ru');}
   var burger=document.getElementById('burgerBtn');
   var header=document.getElementById('siteHeader');
   function closeMenu(){header.classList.remove('nav-open');burger.setAttribute('aria-expanded','false');}
@@ -1222,7 +1327,7 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
   window.matchMedia('(max-width:1110px)').addEventListener('change',closeMenu);
 
 </script>
-<script id="site-data" type="application/json">{"schemaVersion":1,"settings":{"whatsapp":"996220622221","phone":"+996220622221","phoneLabel":"+996 220 622 221","address":"Бишкек, ул. Токтогула, 208/1","instagram":"https://www.instagram.com/practikum_buhgalter.kg/","threads":"https://www.threads.net/@buhgalter_bishkek_1c","addressKy":"Бишкек, Токтогул көчөсү, 208/1"},"resources":[{"id":"minjust","category":"laws","kind":"official","title":{"ru":"Законы Кыргызстана","ky":"Кыргызстандын мыйзамдары"},"description":{"ru":"Поиск нормативных актов, редакций и статуса документа в базе Минюста.","ky":"Юстиция министрлигинин базасынан укуктук актыларды, редакцияларды жана документтин статусун издөө."},"source":"Минюст КР","url":"https://cbd.minjust.gov.kg/search-docs/ru","tags":["закон","налоговый кодекс","трудовой","бухгалтерский учет","мыйзам"],"status":"published","lastReviewedAt":null},{"id":"tax-code","category":"laws","kind":"official","title":{"ru":"Налоговый кодекс КР","ky":"КР Салык кодекси"},"description":{"ru":"Карточка кодекса в базе Минюста. Проверьте выбранную редакцию и дату вступления изменений в силу.","ky":"Юстиция министрлигинин базасындагы кодекс. Тандалган редакцияны жана өзгөртүүлөрдүн күчүнө кирген күнүн текшериңиз."},"source":"Минюст КР","url":"https://cbd.minjust.gov.kg/3-39/edition/2264/ru","tags":["налоги","кодекс","салык"],"status":"published","lastReviewedAt":null},{"id":"statistics","category":"forms","kind":"official","title":{"ru":"Формы статистической отчётности","ky":"Статистикалык отчёттуулуктун формалары"},"description":{"ru":"Официальный каталог бланков и инструкций. Выбирайте форму под свою организацию и отчётный период.","ky":"Бланктардын жана нускамалардын расмий каталогу. Уюмуңузга жана отчёттук мезгилге ылайык форманы тандаңыз."},"source":"Нацстатком КР","url":"https://www.stat.gov.kg/ru/formy-statisticheskoj-otchetnosti/","tags":["статистика","бланки","формы","отчет","xls"],"status":"published","lastReviewedAt":null},{"id":"tax-cabinet","category":"services","kind":"official","title":{"ru":"Кабинет налогоплательщика","ky":"Салык төлөөчүнүн кабинети"},"description":{"ru":"Переход в официальный кабинет. Для работы потребуется вход на сайте сервиса.","ky":"Расмий кабинетке өтүү. Иштөө үчүн сервистин сайтына кирүү керек."},"source":"ГНС КР","url":"https://cabinet.salyk.kg","tags":["салык","гнс","отчетность","налоговая"],"status":"published","lastReviewedAt":null},{"id":"nbkr","category":"services","kind":"official","title":{"ru":"Официальные курсы валют","ky":"Валюталардын расмий курстары"},"description":{"ru":"Курсы НБКР и выбор периода. Проверяйте дату курса и количество единиц валюты.","ky":"Улуттук банктын курстары жана мезгилди тандоо. Курстун күнүн жана валютанын бирдиктеринин санын текшериңиз."},"source":"НБКР","url":"https://www.nbkr.kg/index1.jsp?item=1562&lang=RUS","tags":["доллар","курс","валюта","рубль","сом"],"status":"published","lastReviewedAt":null},{"id":"practice-journal","category":"study","kind":"learning","title":{"ru":"Журнал учебных операций","ky":"Окуу операцияларынын журналы"},"description":{"ru":"Таблица CSV для упражнений: дата, операция, дебет, кредит, сумма. Открывается в Excel.","ky":"Көнүгүүлөр үчүн CSV таблица: күн, операция, дебет, кредит, сумма. Excelде ачылат."},"source":"Практикум · учебный шаблон","download":{"filename":"praktikum-journal.csv","mime":"text/csv;charset=utf-8","text":"Дата / Күн;Операция;Дебет;Кредит;Сумма (сом) / Сумма (сом)\r\n;Учебный пример: внесение денег из кассы в банк / Окуу мисалы: кассадан банкка акча салуу;Банк;Касса;3000\r\n;;;;\r\n;;;;\r\n"},"tags":["проводки","excel","таблица","журнал","шаблон"],"status":"published","lastReviewedAt":null},{"id":"document-checklist","category":"study","kind":"learning","title":{"ru":"Чек-лист проверки документа","ky":"Документти текшерүү тизмеси"},"description":{"ru":"Вопросы для учебной самопроверки перед отражением операции в учёте.","ky":"Операцияны эсепке алуудан мурун өзүн-өзү текшерүү үчүн суроолор."},"source":"Практикум · учебная памятка","download":{"filename":"praktikum-checklist.txt","mime":"text/plain;charset=utf-8","text":"ПРАКТИКУМ — учебная памятка / окуу эскертмеси\nНе является официальным бланком или исчерпывающим перечнем требований.\nРасмий бланк же талаптардын толук тизмеси эмес.\n\n1. Понятна ли операция? / Операция түшүнүктүүбү?\n2. Указаны ли дата и участники? / Күнү жана катышуучулар көрсөтүлгөнбү?\n3. Сходятся ли сумма, количество и цена? / Сумма, сан жана баа туурабы?\n4. Есть ли необходимые подтверждения и согласования? / Керектүү ырастоолор барбы?\n5. Не отражена ли операция повторно? / Операция кайталанган жокпу?\n6. Проверены ли требования к конкретному виду документа? / Документтин түрүнө коюлган талаптар текшерилгенби?\n\nРазберите спорные вопросы с преподавателем. / Талаштуу суроолорду мугалим менен талкуулаңыз.\n"},"tags":["первичка","чек-лист","документы","проверка"],"status":"published","lastReviewedAt":null},{"id":"terms","category":"study","kind":"learning","title":{"ru":"Словарь первых терминов","ky":"Алгачкы терминдердин сөздүгү"},"description":{"ru":"Актив, обязательство, дебет, кредит и проводка — кратко, для первого знакомства.","ky":"Актив, милдеттенме, дебет, кредит жана өткөрмө — алгачкы таанышуу үчүн кыскача."},"source":"Практикум · учебная памятка","download":{"filename":"praktikum-terms.txt","mime":"text/plain;charset=utf-8","text":"ПРАКТИКУМ — вводный словарь / киришүү сөздүгү\nУпрощённые учебные объяснения. / Жөнөкөйлөтүлгөн окуу түшүндүрмөлөрү.\n\nАктив: ресурс под контролем организации, способный приносить экономическую выгоду.\nАктив: уюм көзөмөлдөгөн, экономикалык пайда алып келе турган ресурс.\n\nОбязательство: существующая обязанность организации передать экономический ресурс.\nМилдеттенме: уюмдун экономикалык ресурсту өткөрүп берүү боюнча учурдагы милдети.\n\nДебет: левая сторона бухгалтерского счёта.\nДебет: бухгалтердик чоттун сол жагы.\n\nКредит: правая сторона бухгалтерского счёта.\nКредит: бухгалтердик чоттун оң жагы.\n\nПроводка: запись операции по дебету одного и кредиту другого счёта; бывают и сложные проводки.\nӨткөрмө: бир чоттун дебети жана башка чоттун кредити боюнча операциянын жазылышы; татаал өткөрмөлөр да болот.\n\nДебет не всегда означает приход, а кредит — расход: направление изменения зависит от вида счёта.\nДебет дайыма киреше, кредит чыгаша дегенди билдирбейт: өзгөрүү чоттун түрүнө жараша болот.\n"},"tags":["термины","словарь","дебет","кредит","сөздүк"],"status":"published","lastReviewedAt":null}],"questions":[{"id":"cash-to-bank","title":{"ru":"Из кассы внесли 3 000 сом на банковский счёт.","ky":"Кассадан банк эсебине 3 000 сом салынды."},"prompt":{"ru":"Как отразить перемещение денег?","ky":"Акчанын которулушун кантип жазабыз?"},"options":[{"ru":"Дебет «Банк» · Кредит «Касса»","ky":"Дебет «Банк» · Кредит «Касса»"},{"ru":"Дебет «Касса» · Кредит «Банк»","ky":"Дебет «Касса» · Кредит «Банк»"},{"ru":"Дебет «Расходы» · Кредит «Касса»","ky":"Дебет «Чыгашалар» · Кредит «Касса»"}],"answer":0,"explanation":{"ru":"Средства на банковском счёте увеличились, в кассе — уменьшились. Для этих активных счетов увеличение отражается по дебету, уменьшение — по кредиту. Общая сумма денег не изменилась.","ky":"Банк эсебиндеги каражат көбөйдү, кассада азайды. Бул активдүү чоттордо көбөйүү дебетке, азаюу кредитке жазылат. Акчанын жалпы суммасы өзгөргөн жок."}},{"id":"bank-to-cash","title":{"ru":"С банковского счёта сняли 2 000 сом в кассу.","ky":"Банк эсебинен кассага 2 000 сом алынды."},"prompt":{"ru":"Какая проводка подходит?","ky":"Кайсы өткөрмө туура?"},"options":[{"ru":"Дебет «Банк» · Кредит «Касса»","ky":"Дебет «Банк» · Кредит «Касса»"},{"ru":"Дебет «Касса» · Кредит «Банк»","ky":"Дебет «Касса» · Кредит «Банк»"},{"ru":"Дебет «Касса» · Кредит «Доходы»","ky":"Дебет «Касса» · Кредит «Кирешелер»"}],"answer":1,"explanation":{"ru":"Касса увеличилась по дебету, банковский счёт уменьшился по кредиту. Перемещение собственных денег не создаёт доход. Комиссии в этом учебном примере нет.","ky":"Касса дебет боюнча көбөйдү, банк эсеби кредит боюнча азайды. Өз акчасын которуу киреше түзбөйт. Бул окуу мисалында комиссия жок."}},{"id":"total-funds","title":{"ru":"В кассе было 12 000 сом, в банке — 8 000 сом. Из кассы перевели в банк 3 000 сом.","ky":"Кассада 12 000 сом, банкта 8 000 сом болгон. Кассадан банкка 3 000 сом которулду."},"prompt":{"ru":"Сколько денег осталось всего?","ky":"Жалпысынан канча акча калды?"},"options":[{"ru":"17 000 сом","ky":"17 000 сом"},{"ru":"23 000 сом","ky":"23 000 сом"},{"ru":"20 000 сом","ky":"20 000 сом"}],"answer":2,"explanation":{"ru":"9 000 сом в кассе + 11 000 сом в банке = 20 000 сом. Изменилось место хранения средств, а не их общая сумма.","ky":"Кассада 9 000 сом + банкта 11 000 сом = 20 000 сом. Каражаттын сакталган жери өзгөрдү, жалпы суммасы эмес."}}]}</script>
+<script id="site-data" type="application/json">{"schemaVersion":1,"groups":[],"settings":{"whatsapp":"996220622221","phone":"+996220622221","phoneLabel":"+996 220 622 221","address":"Бишкек, ул. Токтогула, 208/1","instagram":"https://www.instagram.com/practikum_buhgalter.kg/","threads":"https://www.threads.net/@buhgalter_bishkek_1c","addressKy":"Бишкек, Токтогул көчөсү, 208/1"},"resources":[{"id":"minjust","category":"laws","kind":"official","title":{"ru":"Законы Кыргызстана","ky":"Кыргызстандын мыйзамдары"},"description":{"ru":"Поиск нормативных актов, редакций и статуса документа в базе Минюста.","ky":"Юстиция министрлигинин базасынан укуктук актыларды, редакцияларды жана документтин статусун издөө."},"source":"Минюст КР","url":"https://cbd.minjust.gov.kg/search-docs/ru","tags":["закон","налоговый кодекс","трудовой","бухгалтерский учет","мыйзам"],"status":"published","lastReviewedAt":null},{"id":"tax-code","category":"laws","kind":"official","title":{"ru":"Налоговый кодекс КР","ky":"КР Салык кодекси"},"description":{"ru":"Карточка кодекса в базе Минюста. Проверьте выбранную редакцию и дату вступления изменений в силу.","ky":"Юстиция министрлигинин базасындагы кодекс. Тандалган редакцияны жана өзгөртүүлөрдүн күчүнө кирген күнүн текшериңиз."},"source":"Минюст КР","url":"https://cbd.minjust.gov.kg/3-39/edition/2264/ru","tags":["налоги","кодекс","салык"],"status":"published","lastReviewedAt":null},{"id":"statistics","category":"forms","kind":"official","title":{"ru":"Формы статистической отчётности","ky":"Статистикалык отчёттуулуктун формалары"},"description":{"ru":"Официальный каталог бланков и инструкций. Выбирайте форму под свою организацию и отчётный период.","ky":"Бланктардын жана нускамалардын расмий каталогу. Уюмуңузга жана отчёттук мезгилге ылайык форманы тандаңыз."},"source":"Нацстатком КР","url":"https://www.stat.gov.kg/ru/formy-statisticheskoj-otchetnosti/","tags":["статистика","бланки","формы","отчет","xls"],"status":"published","lastReviewedAt":null},{"id":"tax-cabinet","category":"services","kind":"official","title":{"ru":"Кабинет налогоплательщика","ky":"Салык төлөөчүнүн кабинети"},"description":{"ru":"Переход в официальный кабинет. Для работы потребуется вход на сайте сервиса.","ky":"Расмий кабинетке өтүү. Иштөө үчүн сервистин сайтына кирүү керек."},"source":"ГНС КР","url":"https://cabinet.salyk.kg","tags":["салык","гнс","отчетность","налоговая"],"status":"published","lastReviewedAt":null},{"id":"nbkr","category":"services","kind":"official","title":{"ru":"Официальные курсы валют","ky":"Валюталардын расмий курстары"},"description":{"ru":"Курсы НБКР и выбор периода. Проверяйте дату курса и количество единиц валюты.","ky":"Улуттук банктын курстары жана мезгилди тандоо. Курстун күнүн жана валютанын бирдиктеринин санын текшериңиз."},"source":"НБКР","url":"https://www.nbkr.kg/index1.jsp?item=1562&lang=RUS","tags":["доллар","курс","валюта","рубль","сом"],"status":"published","lastReviewedAt":null},{"id":"practice-journal","category":"study","kind":"learning","title":{"ru":"Журнал учебных операций","ky":"Окуу операцияларынын журналы"},"description":{"ru":"Таблица CSV для упражнений: дата, операция, дебет, кредит, сумма. Открывается в Excel.","ky":"Көнүгүүлөр үчүн CSV таблица: күн, операция, дебет, кредит, сумма. Excelде ачылат."},"source":"Практикум · учебный шаблон","download":{"filename":"praktikum-journal.csv","mime":"text/csv;charset=utf-8","text":"Дата / Күн;Операция;Дебет;Кредит;Сумма (сом) / Сумма (сом)\r\n;Учебный пример: внесение денег из кассы в банк / Окуу мисалы: кассадан банкка акча салуу;Банк;Касса;3000\r\n;;;;\r\n;;;;\r\n"},"tags":["проводки","excel","таблица","журнал","шаблон"],"status":"published","lastReviewedAt":null},{"id":"document-checklist","category":"study","kind":"learning","title":{"ru":"Чек-лист проверки документа","ky":"Документти текшерүү тизмеси"},"description":{"ru":"Вопросы для учебной самопроверки перед отражением операции в учёте.","ky":"Операцияны эсепке алуудан мурун өзүн-өзү текшерүү үчүн суроолор."},"source":"Практикум · учебная памятка","download":{"filename":"praktikum-checklist.txt","mime":"text/plain;charset=utf-8","text":"ПРАКТИКУМ — учебная памятка / окуу эскертмеси\nНе является официальным бланком или исчерпывающим перечнем требований.\nРасмий бланк же талаптардын толук тизмеси эмес.\n\n1. Понятна ли операция? / Операция түшүнүктүүбү?\n2. Указаны ли дата и участники? / Күнү жана катышуучулар көрсөтүлгөнбү?\n3. Сходятся ли сумма, количество и цена? / Сумма, сан жана баа туурабы?\n4. Есть ли необходимые подтверждения и согласования? / Керектүү ырастоолор барбы?\n5. Не отражена ли операция повторно? / Операция кайталанган жокпу?\n6. Проверены ли требования к конкретному виду документа? / Документтин түрүнө коюлган талаптар текшерилгенби?\n\nРазберите спорные вопросы с преподавателем. / Талаштуу суроолорду мугалим менен талкуулаңыз.\n"},"tags":["первичка","чек-лист","документы","проверка"],"status":"published","lastReviewedAt":null},{"id":"terms","category":"study","kind":"learning","title":{"ru":"Словарь первых терминов","ky":"Алгачкы терминдердин сөздүгү"},"description":{"ru":"Актив, обязательство, дебет, кредит и проводка — кратко, для первого знакомства.","ky":"Актив, милдеттенме, дебет, кредит жана өткөрмө — алгачкы таанышуу үчүн кыскача."},"source":"Практикум · учебная памятка","download":{"filename":"praktikum-terms.txt","mime":"text/plain;charset=utf-8","text":"ПРАКТИКУМ — вводный словарь / киришүү сөздүгү\nУпрощённые учебные объяснения. / Жөнөкөйлөтүлгөн окуу түшүндүрмөлөрү.\n\nАктив: ресурс под контролем организации, способный приносить экономическую выгоду.\nАктив: уюм көзөмөлдөгөн, экономикалык пайда алып келе турган ресурс.\n\nОбязательство: существующая обязанность организации передать экономический ресурс.\nМилдеттенме: уюмдун экономикалык ресурсту өткөрүп берүү боюнча учурдагы милдети.\n\nДебет: левая сторона бухгалтерского счёта.\nДебет: бухгалтердик чоттун сол жагы.\n\nКредит: правая сторона бухгалтерского счёта.\nКредит: бухгалтердик чоттун оң жагы.\n\nПроводка: запись операции по дебету одного и кредиту другого счёта; бывают и сложные проводки.\nӨткөрмө: бир чоттун дебети жана башка чоттун кредити боюнча операциянын жазылышы; татаал өткөрмөлөр да болот.\n\nДебет не всегда означает приход, а кредит — расход: направление изменения зависит от вида счёта.\nДебет дайыма киреше, кредит чыгаша дегенди билдирбейт: өзгөрүү чоттун түрүнө жараша болот.\n"},"tags":["термины","словарь","дебет","кредит","сөздүк"],"status":"published","lastReviewedAt":null}],"questions":[{"id":"cash-to-bank","title":{"ru":"Из кассы внесли 3 000 сом на банковский счёт.","ky":"Кассадан банк эсебине 3 000 сом салынды."},"prompt":{"ru":"Как отразить перемещение денег?","ky":"Акчанын которулушун кантип жазабыз?"},"options":[{"ru":"Дебет «Банк» · Кредит «Касса»","ky":"Дебет «Банк» · Кредит «Касса»"},{"ru":"Дебет «Касса» · Кредит «Банк»","ky":"Дебет «Касса» · Кредит «Банк»"},{"ru":"Дебет «Расходы» · Кредит «Касса»","ky":"Дебет «Чыгашалар» · Кредит «Касса»"}],"answer":0,"explanation":{"ru":"Средства на банковском счёте увеличились, в кассе — уменьшились. Для этих активных счетов увеличение отражается по дебету, уменьшение — по кредиту. Общая сумма денег не изменилась.","ky":"Банк эсебиндеги каражат көбөйдү, кассада азайды. Бул активдүү чоттордо көбөйүү дебетке, азаюу кредитке жазылат. Акчанын жалпы суммасы өзгөргөн жок."}},{"id":"bank-to-cash","title":{"ru":"С банковского счёта сняли 2 000 сом в кассу.","ky":"Банк эсебинен кассага 2 000 сом алынды."},"prompt":{"ru":"Какая проводка подходит?","ky":"Кайсы өткөрмө туура?"},"options":[{"ru":"Дебет «Банк» · Кредит «Касса»","ky":"Дебет «Банк» · Кредит «Касса»"},{"ru":"Дебет «Касса» · Кредит «Банк»","ky":"Дебет «Касса» · Кредит «Банк»"},{"ru":"Дебет «Касса» · Кредит «Доходы»","ky":"Дебет «Касса» · Кредит «Кирешелер»"}],"answer":1,"explanation":{"ru":"Касса увеличилась по дебету, банковский счёт уменьшился по кредиту. Перемещение собственных денег не создаёт доход. Комиссии в этом учебном примере нет.","ky":"Касса дебет боюнча көбөйдү, банк эсеби кредит боюнча азайды. Өз акчасын которуу киреше түзбөйт. Бул окуу мисалында комиссия жок."}},{"id":"total-funds","title":{"ru":"В кассе было 12 000 сом, в банке — 8 000 сом. Из кассы перевели в банк 3 000 сом.","ky":"Кассада 12 000 сом, банкта 8 000 сом болгон. Кассадан банкка 3 000 сом которулду."},"prompt":{"ru":"Сколько денег осталось всего?","ky":"Жалпысынан канча акча калды?"},"options":[{"ru":"17 000 сом","ky":"17 000 сом"},{"ru":"23 000 сом","ky":"23 000 сом"},{"ru":"20 000 сом","ky":"20 000 сом"}],"answer":2,"explanation":{"ru":"9 000 сом в кассе + 11 000 сом в банке = 20 000 сом. Изменилось место хранения средств, а не их общая сумма.","ky":"Кассада 9 000 сом + банкта 11 000 сом = 20 000 сом. Каражаттын сакталган жери өзгөрдү, жалпы суммасы эмес."}}]}</script>
 <script>(function(root){
   const normalize=value=>String(value).toLocaleLowerCase().replace(/ё/g,'е').trim();
   const api={
@@ -1231,6 +1336,71 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
   };
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.PraktikumCore=api;
 })(typeof window!=='undefined'?window:globalThis);
+
+(function (root) {
+  'use strict';
+
+  const programs = {
+    basics: {
+      title: { ru: 'Бухгалтерия с нуля · 3 в 1', ky: 'Бухгалтердик эсеп нөлдөн · 3 в 1' },
+      description: { ru: 'Бухучёт, налоги и практические занятия в 1С. Для тех, кто начинает с нуля.', ky: 'Бухгалтердик эсеп, салыктар жана 1С боюнча практика. Жаңы баштагандар үчүн.' },
+      format: 'onsite', duration: { ru: '1,5 месяца', ky: '1,5 ай' }, link: '#course'
+    },
+    singleTax: {
+      title: { ru: 'Бухгалтер на едином налоге', ky: 'Бирдиктүү салык боюнча бухгалтер' },
+      description: { ru: 'Живые занятия в Zoom, задания с обратной связью и записи уроков.', ky: 'Zoom аркылуу түз сабактар, мугалим текшере турган тапшырмалар жана сабактардын жазуулары.' },
+      format: 'online', duration: { ru: '1 месяц', ky: '1 ай' }, link: 'https://www.instagram.com/p/DfldxuHRdwB/'
+    },
+    generalTax: {
+      title: { ru: 'Общий режим, НДС и импорт', ky: 'Жалпы режим, КНС жана импорт' },
+      description: { ru: 'Темы программы «Бухгалтерия 3 в 1» для тех, кто хочет вести учёт в более крупной компании.', ky: 'Ири компанияда эсеп жүргүзүүнү каалагандар үчүн «Бухгалтерия 3 в 1» программасынын темалары.' },
+      duration: { ru: '1,5 месяца', ky: '1,5 ай' }, link: 'https://www.instagram.com/p/Dfqj9m9RUvC/'
+    }
+  };
+
+  const teachers = {
+    baktygul: { ru: 'Бактыгуль Омурзакова', ky: 'Бактыгүл Өмүрзакова' },
+    asel: { ru: 'Асель Окенова', ky: 'Асель Окенова' },
+    shohjahon: { ru: 'Шохжахон Мадаминов', ky: 'Шохжахон Мадаминов' }
+  };
+  const formats = {
+    onsite: { ru: 'Очно, Бишкек', ky: 'Бишкекте, офлайн' },
+    online: { ru: 'Онлайн', ky: 'Онлайн' }
+  };
+
+  function validDate(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(value + 'T00:00:00Z');
+    return Number.isFinite(+date) && date.toISOString().slice(0, 10) === value;
+  }
+
+  function validGroup(group) {
+    return group && Object.hasOwn(programs, group.program) &&
+      Object.hasOwn(formats, group.format) && Object.hasOwn(teachers, group.teacher) &&
+      validDate(group.start) && /^\d{1,7}$/.test(String(group.price)) && Number(group.price) > 0 &&
+      typeof group.scheduleRu === 'string' && !!group.scheduleRu.trim() &&
+      typeof group.scheduleKy === 'string' && !!group.scheduleKy.trim();
+  }
+
+  function todayInBishkek(now = new Date()) {
+    const parts = new Intl.DateTimeFormat('ru', {
+      timeZone: 'Asia/Bishkek', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(now);
+    const part = type => parts.find(item => item.type === type).value;
+    return [part('year'), part('month'), part('day')].join('-');
+  }
+
+  function upcoming(groups, now) {
+    const today = todayInBishkek(now);
+    return (Array.isArray(groups) ? groups : []).filter(
+      group => group?.status === 'published' && validGroup(group) && group.start >= today
+    ).sort((first, second) => first.start.localeCompare(second.start));
+  }
+
+  const api = { programs, teachers, formats, validGroup, upcoming };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.PraktikumGroups = api;
+})(typeof globalThis !== 'undefined' ? globalThis : window);
 
 (function(){
   'use strict';
@@ -1314,6 +1484,115 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
   $('reviewsPrev').addEventListener('click',()=>track.scrollBy({left:-344,behavior:reduced.matches?'instant':'smooth'}));
   $('reviewsNext').addEventListener('click',()=>track.scrollBy({left:344,behavior:reduced.matches?'instant':'smooth'}));
   track.addEventListener('scroll',updateReviewButtons,{passive:true});window.addEventListener('resize',updateReviewButtons);updateReviewButtons();
+  const groupContent=PraktikumGroups;
+  const lessonOptions=[
+    ['Дебет «Товары» · Кредит «Касса»','Дебет «Товарлар» · Кредит «Касса»'],
+    ['Дебет «Товары» · Кредит «Расчёты с поставщиками»','Дебет «Товарлар» · Кредит «Жеткирүүчүлөр менен эсептешүү»'],
+    ['Дебет «Расчёты с поставщиками» · Кредит «Товары»','Дебет «Жеткирүүчүлөр менен эсептешүү» · Кредит «Товарлар»']
+  ];
+  let lessonChoice=null;
+
+  function enrollmentCard(program,group){
+    const card=el('article','enrollment-card');
+    const format=group?.format || program.format;
+    const heading=el('h3','',t(program.title));
+    if(format){
+      const formatLabel=t(groupContent.formats[format]);
+      card.append(el('p','enrollment-format',formatLabel+(format==='online'&&program===groupContent.programs.singleTax?' · Zoom':'')));
+    }
+    card.append(heading,el('p','enrollment-description',t(program.description)));
+    const info=el('dl','enrollment-details');
+    function addDetail(label,value){
+      const row=el('div');
+      row.append(el('dt','',label),el('dd','',value));
+      info.append(row);
+    }
+    const start=group?new Intl.DateTimeFormat(language(),{dateStyle:'long',timeZone:'UTC'}).format(new Date(group.start+'T00:00:00Z')):'';
+    if(group){
+      addDetail(wording('Старт','Башталышы'),start);
+      addDetail(wording('Занятия','Сабактар'),language()==='ky'?group.scheduleKy:group.scheduleRu);
+      addDetail(wording('Стоимость','Баасы'),new Intl.NumberFormat(language()).format(Number(group.price))+' сом');
+      addDetail(wording('Преподаватель','Мугалим'),t(groupContent.teachers[group.teacher]));
+    }else{
+      addDetail(wording('Длительность','Узактыгы'),t(program.duration));
+      addDetail(wording('Старт и цена','Башталышы жана баасы'),wording('По запросу','Тактап алыңыз'));
+    }
+    const actions=el('div','enrollment-actions');
+    const details=el('a','guide-link',program.link.startsWith('#')?wording('Смотреть программу','Программаны көрүү'):wording('Анонс курса ↗','Курстун жарыясы ↗'));
+    details.href=program.link;
+    if(program.link.startsWith('https:')){details.target='_blank';details.rel='noopener noreferrer';}
+    const contact=el('a','btn btn-primary btn-small',group?wording('Записаться','Жазылуу'):wording('Узнать о наборе','Кабыл алууну тактоо'));
+    const course=t(program.title);
+    const message=group
+      ?wording('Здравствуйте! Хочу записаться на программу «'+course+'» со стартом '+start+'.','Саламатсызбы! '+start+' баштала турган «'+course+'» программасына жазылгым келет.')
+      :wording('Здравствуйте! Подскажите дату старта и стоимость программы «'+course+'».','Саламатсызбы! «'+course+'» программасы качан башталат жана баасы канча?');
+    contact.href='https://wa.me/'+data.settings.whatsapp+'?text='+encodeURIComponent(message);
+    contact.target='_blank';
+    contact.rel='noopener noreferrer';
+    actions.append(details,contact);
+    card.append(info,actions);
+    return card;
+  }
+
+  function renderGroups(){
+    const groups=groupContent.upcoming(data.groups);
+    const listedPrograms=new Set(groups.map(group=>group.program));
+    const cards=groups.map(group=>enrollmentCard(groupContent.programs[group.program],group));
+    for(const [key,program] of Object.entries(groupContent.programs)){
+      if(!listedPrograms.has(key))cards.push(enrollmentCard(program));
+    }
+    $('group-summary').textContent=groups.length
+      ?wording('Выберите группу по дате, формату и времени занятий.','Күнүнө, форматына жана сабак убактысына жараша топ тандаңыз.')
+      :wording('Выберите подходящую программу. Дату старта и стоимость можно уточнить у администратора.','Өзүңүзгө ылайыктуу программаны тандаңыз. Баштала турган күндү жана баасын администратордон тактай аласыз.');
+    $('enrollment-grid').replaceChildren(...cards);
+  }
+
+  function renderFirstLesson(focusTarget){
+    const host=$('first-lesson-trainer');
+    const heading=el('h3','',wording('Какую проводку выбрать?','Кайсы бухгалтердик жазуу туура?'));
+    heading.tabIndex=-1;
+    const prompt=el('p','trainer-question',wording('Товар на складе появился. Поставщику ещё не заплатили.','Кампага товар түштү. Жеткирүүчүгө төлөм али жүргүзүлө элек.'));
+    const options=el('div','trainer-options');
+    lessonOptions.forEach(([ru,ky],index)=>{
+      const option=el('button','trainer-option');
+      option.type='button';
+      option.disabled=lessonChoice!==null;
+      option.append(el('span','option-letter',String.fromCharCode(65+index)),el('span','',wording(ru,ky)));
+      if(lessonChoice!==null&&index===1){
+        option.classList.add('correct');
+        option.append(el('span','',wording('✓ Верно','✓ Туура')));
+      }else if(index===lessonChoice){
+        option.classList.add('incorrect');
+        option.append(el('span','',wording('× Ваш ответ','× Сиздин жооп')));
+      }
+      option.addEventListener('click',()=>{lessonChoice=index;renderFirstLesson('feedback');});
+      options.append(option);
+    });
+    host.replaceChildren(heading,prompt,options);
+    if(lessonChoice!==null){
+      const feedback=el('div','trainer-feedback');
+      feedback.tabIndex=-1;
+      feedback.setAttribute('role','status');
+      feedback.append(
+        el('strong','',lessonChoice===1?wording('Верно','Туура'):wording('Разберём проводку','Жазууну талдап көрөлү')),
+        el('p','',wording('Товары увеличились на 2 000 сом по дебету. На ту же сумму по кредиту вырос долг поставщику. Денег из кассы пока не выдавали.','Товарлар дебет боюнча 2 000 сомго көбөйдү. Жеткирүүчүгө карыз да кредит боюнча ошончого өстү. Кассадан акча бериле элек.'))
+      );
+      const retry=el('button','btn btn-ghost',wording('Решить ещё раз','Кайра жооп берүү'));
+      retry.type='button';
+      retry.addEventListener('click',()=>{lessonChoice=null;renderFirstLesson('question');});
+      host.append(feedback,retry);
+      if(focusTarget==='feedback')feedback.focus();
+    }
+    if(focusTarget==='question')heading.focus();
+  }
+
+  function updateGuideLinks(){
+    for(const link of document.querySelectorAll('[data-guide]')){
+      const path=link.getAttribute('href').split(/[?#]/)[0];
+      link.href=path+(language()==='ky'?'?lang=ky':'')+'#'+link.dataset.guide;
+    }
+  }
+
   function updateLanguage(){
     $('resourceSearch').placeholder=wording('Например: бланки, касса, налоги','Мисалы: бланктар, касса, салык');
     $('resourceFilters').setAttribute('aria-label',wording('Категории материалов','Материалдардын түрлөрү'));
@@ -1329,6 +1608,7 @@ html[lang-mode="ky"] .hero h1{max-width:26ch;font-size:clamp(32px,3.7vw,55px)}
       link.href=text?base+'?text='+encodeURIComponent(text):base;
     });
     renderFilters();renderResources();renderTrainer();renderLedger();
+    renderGroups();renderFirstLesson();updateGuideLinks();
   }
   new MutationObserver(updateLanguage).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   updateLanguage();
