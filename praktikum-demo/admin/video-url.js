@@ -12,6 +12,13 @@ function parseVideoUrl(value) {
   }
   if (url.protocol !== 'https:' || url.username || url.password || url.port) return null;
 
+  if (url.hostname === 'instagram.com' || url.hostname === 'www.instagram.com') {
+    const match = url.pathname.match(/^\/(p|reel)\/([A-Za-z0-9_-]{5,32})\/?$/);
+    if (!match) return null;
+    const href = 'https://www.instagram.com/' + match[1] + '/' + match[2] + '/';
+    return { kind: 'instagram', src: href + 'embed/', href };
+  }
+
   let id;
   if (url.hostname === 'youtu.be') {
     id = url.pathname.split('/').at(1);

@@ -38,6 +38,8 @@
     .guide-video{margin:22px 0 0;padding:14px;border:1px solid var(--line);background:var(--surface)}
     .guide-video h3{margin-top:0}
     .guide-player iframe,.guide-player video{display:block;width:100%;aspect-ratio:16 / 9;border:0;background:var(--ink)}
+    .guide-player.instagram-frame{max-width:390px;container-type:inline-size}
+    .guide-player.instagram-frame iframe{aspect-ratio:auto;height:calc(125cqw + 175px);min-height:520px;background:#fff}
     .guide-player .action{border:0;cursor:pointer;font:inherit}
     .guide-video a{display:inline-block;margin-top:8px}
     footer{border-top:1px solid var(--line);padding:18px 0 26px}
@@ -101,7 +103,7 @@
     </div>
   </main>
   <footer><div class="wrap">Практикум · Бишкек</div></footer>
-  <script src="admin/video-url.js"></script>
+  <script src="admin/video-url.js?v=2"></script>
   <script>
     const lang = new URLSearchParams(location.search).get('lang') === 'ky' ? 'ky' : 'ru';
     document.documentElement.lang = lang;
@@ -140,10 +142,11 @@
         link.href = video.href;
         const button = host.querySelector('button');
         button.addEventListener('click', () => {
-          const youtube = video.kind === 'youtube';
-          const player = document.createElement(youtube ? 'iframe' : 'video');
+          const embedded = video.kind !== 'file';
+          const container = host.querySelector('.guide-player');
+          const player = document.createElement(embedded ? 'iframe' : 'video');
           player.src = video.src;
-          if (youtube) {
+          if (embedded) {
             player.title = title;
             player.referrerPolicy = 'strict-origin-when-cross-origin';
             player.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
@@ -155,7 +158,8 @@
             player.setAttribute('aria-label', title);
           }
           player.tabIndex = 0;
-          host.querySelector('.guide-player').replaceChildren(player);
+          if (video.kind === 'instagram') container.classList.add('instagram-frame');
+          container.replaceChildren(player);
           player.focus();
         }, { once: true });
         host.hidden = false;

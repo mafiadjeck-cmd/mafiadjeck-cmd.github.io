@@ -7,7 +7,7 @@
       if (entry.status !== 'published') continue;
       const title = entry.title.trim();
       const video = root.PraktikumVideoUrl.parseVideoUrl(entry.url);
-      if (!title || !video) throw new Error('Укажите название и ссылку на YouTube, MP4 или WebM для каждого видео, которое будет видно на сайте.');
+      if (!title || !video) throw new Error('Укажите название и ссылку на Instagram, YouTube, MP4 или WebM для каждого видео, которое будет видно на сайте.');
       const placement = ['lesson', 'esf'].includes(entry.placement) ? { placement: entry.placement } : {};
       visible.push({ title, titleKy: entry.titleKy?.trim() || '', url: video.href, status: 'published', ...placement, video });
     }
@@ -41,20 +41,13 @@
     };
 
     function videoCard({ title, titleKy, video }, index) {
-      const card = node('article','video-card');
-      const frame = node('div','video-frame');
+      const instagram = video.kind === 'instagram';
+      const card = node('article',instagram ? 'video-card instagram-card' : 'video-card');
+      const frame = node('div',instagram ? 'instagram-frame' : 'video-frame');
       const titleId = 'video-title-' + index;
-      const play = link('video-play',video.href,'Смотреть','Көрүү');
-      const icon = node('span','video-play-icon');
-      icon.setAttribute('aria-hidden','true');
-      play.prepend(icon);
-      play.setAttribute('aria-describedby',titleId);
-      frame.append(play);
-
-      const template = node('template');
-      const player = node(video.kind === 'youtube' ? 'iframe' : 'video');
+      const player = node(video.kind === 'file' ? 'video' : 'iframe');
       player.setAttribute('src', video.src);
-      if (video.kind === 'youtube') {
+      if (player.tagName === 'IFRAME') {
         player.setAttribute('title',title);
         player.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
         player.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen');
@@ -66,14 +59,30 @@
         player.setAttribute('autoplay','');
         player.setAttribute('preload','none');
       }
-      template.content.append(player);
-
       const details = node('div','video-details');
       const cardTitle = languages(node('h3'),title,titleKy || title);
       cardTitle.id = titleId;
-      const onYouTube = video.kind === 'youtube';
-      details.append(cardTitle,link('video-source',video.href,onYouTube ? 'Открыть на YouTube' : 'Открыть видео',onYouTube ? 'YouTube’дан ачуу' : 'Видеону ачуу'));
-      card.append(frame,template,details);
+      const labels = {
+        instagram: ['Открыть в Instagram', 'Instagram’дан ачуу'],
+        youtube: ['Открыть на YouTube', 'YouTube’дан ачуу'],
+        file: ['Открыть видео', 'Видеону ачуу']
+      };
+      details.append(cardTitle,link('video-source',video.href,...labels[video.kind]));
+      if (instagram) {
+        player.setAttribute('loading','lazy');
+        frame.append(player);
+        card.append(details,frame);
+      } else {
+        const play = link('video-play',video.href,'Смотреть','Көрүү');
+        const icon = node('span','video-play-icon');
+        icon.setAttribute('aria-hidden','true');
+        play.prepend(icon);
+        play.setAttribute('aria-describedby',titleId);
+        frame.append(play);
+        const template = node('template');
+        template.content.append(player);
+        card.append(frame,template,details);
+      }
       return card;
     }
 
